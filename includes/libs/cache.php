@@ -196,7 +196,10 @@ function cache_file_locally( string $url, string $type ) : string {
 	);
 
 	if ( is_wp_error( $resp ) ) {
+		if ( file_exists( $cache_path ) ) {
 		unlink( $cache_path );
+		}
+
 		return false;
 	}
 
