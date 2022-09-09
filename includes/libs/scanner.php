@@ -14,8 +14,8 @@ defined( 'ABSPATH' ) || exit;
 
 // ----------------------------------------------------------------------------
 
-add_filter( 'script_loader_src', __NAMESPACE__ . '\scan_external_scripts' );
-add_filter( 'style_loader_src', __NAMESPACE__ . '\scan_external_styles' );
+add_filter( 'script_loader_src', __NAMESPACE__ . '\scan_external_assets' );
+add_filter( 'style_loader_src', __NAMESPACE__ . '\scan_external_assets' );
 
 // add_action( 'wp_head', 'wp_die', 10 );
 
@@ -46,35 +46,34 @@ function is_external_url( string $url ) : bool {
 
 
 /**
- * Scans enqueued scripts and replaces external src with a local one.
+ * Scans enqueued styles/scripts and replaces external sources with a local ones.
  *
  * @since 1.0.0
  *
- * @param string $source A script that might be local or external.
+ * @param string $source A script or style that might be local or external.
  *
- * @return string URL to the local script.
+ * @return string URL to the local script or style.
  */
-function scan_external_scripts( string $source ) : string {
-	if ( is_external_url( $source ) ) {
-		$source = swap_to_local_asset( $source, 'script' );
+function scan_external_assets( string $source ) : string {
+	// Source is empty when asset is loaded via load-scripts.php or load-styles.php
+	// Those assets are always local, and we can safely exit early.
+	if ( ! $source ) {
+		return $source;
 	}
 
-	return $source;
-}
+	// No need to modify an admin asset.
+	if ( is_admin() ) {
+		// return $source;
+	}
 
+	if ( 'style_loader_src' === current_filter() ) {
+		$type = 'css';
+	} else {
+		$type = 'js';
+	}
 
-/**
- * Scans enqueued styles and replaces external href with a local one.
- *
- * @since 1.0.0
- *
- * @param string $source A style that might be local or external.
- *
- * @return string URL to the local style.
- */
-function scan_external_styles( string $source ) : string {
 	if ( is_external_url( $source ) ) {
-		$source = swap_to_local_asset( $source, 'style' );
+		$source = swap_to_local_asset( $source, $type );
 	}
 
 	return $source;
@@ -87,11 +86,16 @@ function scan_external_styles( string $source ) : string {
  * @since 1.0.0
  *
  * @param string $url  The URL to cache locally.
- * @param string $type Type of the asset [script|style]:
+ * @param string $type Type of the asset [js|css]:
  *
  * @return string
  */
 function swap_to_local_asset( string $url, string $type ) : string {
+	// When an invalid URL is provided, bail.
+	if ( ! $url || false === strpos( $url, '//' ) ) {
+		return $url;
+	}
+
 	$local_url = get_local_url( $url );
 
 	if ( ! $local_url ) {

@@ -170,19 +170,19 @@ function set_local_path( string $url, string $file, int $expiration = 0 ) : stri
  * local cache file when done.
  *
  * @param string $url
- * @param string $type
+ * @param string $type The file type (extension).
  *
  * @return string|false URL to the local cache file. False, when the file could
  * not be downloaded to the local cache folder.
  */
 function cache_file_locally( string $url, string $type ) : string {
-	$types = [
-		'script' => '.js',
-		'style'  => '.css',
-	];
+	// Could be an empty string, theoretically.
+	if ( ! $type ) {
+		$type = 'tmp';
+	}
 
 	$timeout    = 300;
-	$filename   = md5( $url ) . '-' . time() . $types[ $type ];
+	$filename   = md5( $url ) . '.' . $type;
 	$cache_path = get_cache_file_path( $filename );
 
 	// Download the remote asset to a local temp file.
