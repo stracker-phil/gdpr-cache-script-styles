@@ -48,6 +48,19 @@ function set_cached_data( array $data ) {
 
 
 /**
+ * Flushes the entire GDPR cache.
+ *
+ * @since 1.0.0
+ * @return void
+ */
+function flush_cache() {
+	set_cached_data( [] );
+
+	// TODO: Empty all files in the uploads folder
+}
+
+
+/**
  * Returns an absolute path to a file in the local cache folder.
  *
  * @since 1.0.0

@@ -31,7 +31,7 @@ function process_actions() {
 		return;
 	}
 
-	$action = wp_unslash( sanitize_key( $_POST['action'] ) );
+	$action = sanitize_key( wp_unslash( $_POST['action'] ) );
 
 	if ( 0 !== strpos( $action, 'gdpr-cache-' ) ) {
 		return;
@@ -61,5 +61,5 @@ function process_actions() {
  * @return void
  */
 function action_flush_cache() {
-	wp_die( 'TODO: Flush cache' );
+	flush_cache();
 }
