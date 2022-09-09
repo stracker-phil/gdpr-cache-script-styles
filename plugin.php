@@ -12,7 +12,7 @@
  * Plugin Name: GDPR Asset Cache
  * Plugin URI:  https://github.com/divimode/gdpr-cache-script-styles
  * Description: Caches external scripts and styles and serves them from your local website to make it more compliant with GDPR regulations
- * Version:     2022.09.09
+ * Version:     1.0.0
  * Author:      Philipp Stracker
  * Author URI:  https://codeable.io/developers/philipp-stracker/
  * Text Domain: gdpr-cache

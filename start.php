@@ -11,3 +11,7 @@ namespace GdprCache;
 defined( 'ABSPATH' ) || exit;
 
 require_once __DIR__ . '/constants.php';
+
+// Admin page integration.
+require_once GDPR_CACHE_PATH . 'includes/admin/actions.php';
+require_once GDPR_CACHE_PATH . 'includes/admin/options.php';
