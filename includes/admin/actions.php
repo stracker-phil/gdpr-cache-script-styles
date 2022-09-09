@@ -33,7 +33,7 @@ function process_actions() {
 
 	$action = wp_unslash( sanitize_key( $_POST['action'] ) );
 
-	if ( ! str_starts_with( $action, 'gdpr-cache-' ) ) {
+	if ( 0 !== strpos( $action, 'gdpr-cache-' ) ) {
 		return;
 	}
 

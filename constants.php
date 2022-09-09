@@ -16,3 +16,10 @@ defined( 'ABSPATH' ) || exit;
  * @var string
  */
 define( 'GDPR_CACHE_PATH', plugin_dir_path( GDPR_CACHE_PLUGIN_FILE ) );
+
+/**
+ * Option name that holds a list of all cached assets.
+ *
+ * @var string
+ */
+const GDPR_CACHE_OPTION = 'gdpr_cache';

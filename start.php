@@ -17,4 +17,5 @@ require_once GDPR_CACHE_PATH . 'includes/admin/actions.php';
 require_once GDPR_CACHE_PATH . 'includes/admin/options.php';
 
 // Asset scanner.
+require_once GDPR_CACHE_PATH . 'includes/libs/cache.php';
 require_once GDPR_CACHE_PATH . 'includes/libs/scanner.php';
