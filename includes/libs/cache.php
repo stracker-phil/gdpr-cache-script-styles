@@ -197,7 +197,7 @@ function cache_file_locally( string $url, string $type ) : string {
 
 	if ( is_wp_error( $resp ) ) {
 		if ( file_exists( $cache_path ) ) {
-		unlink( $cache_path );
+			unlink( $cache_path );
 		}
 
 		return false;
@@ -214,6 +214,70 @@ function cache_file_locally( string $url, string $type ) : string {
 		$expires = DAY_IN_SECONDS;
 	}
 
+	// Scan the contents of the cached file to embed assets that are loaded
+	// within that file.
+	parse_cache_contents( $type, $cache_path );
+
 	return set_local_path( $url, $filename, $expires );
 }
 
+
+/**
+ * Scans the contents of the cached file to download and cache dependencies that
+ * are loaded by the cached asset.
+ *
+ * @since 1.0.0
+ *
+ * @param string $type The file type that's parsed (css|js|ttf|...)
+ * @param string $path Full path to the local cache file.
+ *
+ * @return void
+ */
+function parse_cache_contents( string $type, string $path ) {
+	if ( 'css' !== $type ) {
+		return;
+	}
+
+	/**
+	 * The $matches array has 4 elements:
+	 * [0] the full match, with url-prefix, the URI and the closing bracket
+	 * [1] the "url(" prefix
+	 * [2] the URI, with enclosing quotes <-- change this!
+	 * [3] the closing bracket
+	 *
+	 * @param array $matches Array with 4 elements.
+	 *
+	 * @return string The full match with a different URI
+	 */
+	$parse_dependency = function ( array $matches ) : string {
+		$uri = trim( $matches[2], '"\'' );
+
+		$path = parse_url( $uri, PHP_URL_PATH );
+		$type = pathinfo( $path, PATHINFO_EXTENSION );
+
+		// Try to cache the external dependency.
+		$local_uri = swap_to_local_asset( $uri, $type );
+
+		if ( $local_uri ) {
+			return $matches[1] . $local_uri . $matches[3];
+		} else {
+			return $matches[1] . $uri . $matches[3];
+		}
+	};
+
+	// Read the file contents
+	$contents = file_get_contents( $path );
+
+	$contents = preg_replace_callback(
+		'/([:\s]url\s*\()("[^"]*?"|\'[^\']*?\'|[^"\'][^)]*?)(\))/',
+		$parse_dependency,
+		$contents,
+		- 1,
+		$count
+	);
+
+	// In case an asset was downloaded and cached, update the local file.
+	if ( $count ) {
+		file_put_contents( $path, $contents );
+	}
+}
