@@ -17,7 +17,6 @@ defined( 'ABSPATH' ) || exit;
 	<p>
 		<?php esc_html_e( 'Overview and manage your locally cached assets', 'gdpr-cache' ); ?>
 	</p>
-	<hr class="wp-header-end">
 
 	<form method="post">
 		<h2><?php esc_html_e( 'Cache Control', 'gdpr-cache' ); ?></h2>

@@ -62,4 +62,7 @@ function process_actions() {
  */
 function action_flush_cache() {
 	flush_cache();
+
+	wp_safe_redirect( add_query_arg( [ 'update' => 'flushed' ] ) );
+	exit;
 }
