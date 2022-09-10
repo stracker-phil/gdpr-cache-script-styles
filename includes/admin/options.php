@@ -34,6 +34,9 @@ function register_admin_menu() {
 	);
 
 	add_action( "admin_head-$hook", __NAMESPACE__ . '\show_admin_notices' );
+
+	// Spawn background worker when admin opens the options page.
+	add_action( "admin_head-$hook", __NAMESPACE__ . '\spawn_worker' );
 }
 
 

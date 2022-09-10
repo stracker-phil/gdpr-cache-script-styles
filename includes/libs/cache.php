@@ -14,9 +14,6 @@ defined( 'ABSPATH' ) || exit;
 // ----------------------------------------------------------------------------
 
 
-// ----------------------------------------------------------------------------
-
-
 /**
  * Returns an array of all cached external assets.
  *
@@ -24,14 +21,29 @@ defined( 'ABSPATH' ) || exit;
  * @return array List of external assets
  */
 function get_cached_data() : array {
-	$data = get_option( GDPR_CACHE_OPTION );
+	$data = wp_cache_get( 'data', 'gdpr-cache' );
 
 	if ( ! is_array( $data ) ) {
-		$data = [];
-		set_cached_data( $data );
+		$data = get_option( GDPR_CACHE_OPTION );
+
+		if ( ! is_array( $data ) ) {
+			$data = [];
+			set_cached_data( $data );
+			$data = wp_cache_get( 'data', 'gdpr-cache' );
+		}
+
+		// Cache data to speed up next function call.
+		wp_cache_set( 'data', $data, 'gdpr-cache' );
 	}
 
-	return $data;
+	/**
+	 * Filters the list of cached assets after it's read from the DB.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $data The cache data that was read from the DB.
+	 */
+	return (array) apply_filters( 'gdpr_cache_get_data', $data );
 }
 
 
@@ -43,7 +55,57 @@ function get_cached_data() : array {
  * @param array $data List of external assets
  */
 function set_cached_data( array $data ) {
+	/**
+	 * Filters the cache data before it's written to the DB.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $data The cache data that's written to the DB.
+	 */
+	$data = (array) apply_filters( 'gdpr_cache_set_data', $data );
+
+	// Write data to the cache.
+	wp_cache_set( 'data', $data, 'gdpr-cache' );
+
+	// Persist data to the DB.
 	update_option( GDPR_CACHE_OPTION, $data );
+}
+
+
+/**
+ * Checks the given asset items status.
+ *
+ * @since 1.0.0
+ *
+ * @param string $url The remote URL.
+ *
+ * @return string The asset status [valid|expired|missing].
+ */
+function get_asset_status( string $url ) : string {
+	$data = get_cached_data();
+
+	if ( empty( $data[ $url ] ) ) {
+		// Item is not found in cache. It needs to be captured.
+		return 'missing';
+	}
+
+	$item = $data[ $url ];
+
+	if (
+		empty( $item['file'] ) ||
+		! file_exists( build_cache_file_path( $item['file'] ) )
+	) {
+		// Cache file deleted via FTP?
+		return 'missing';
+	}
+
+	if ( empty( $item['expires'] ) || $item['expires'] < time() ) {
+		// Asset is cached, but expired.
+		return 'expired';
+	}
+
+	// The item is valid.
+	return 'valid';
 }
 
 
@@ -54,51 +116,16 @@ function set_cached_data( array $data ) {
  * @return void
  */
 function flush_cache() {
+	// Flush the cache and empty DB item.
 	set_cached_data( [] );
 
-	// TODO: Empty all files in the uploads folder
-}
+	// Get a list of all files inside the cache-folder.
+	$cache_dir = build_cache_file_path( '' );
+	$files     = list_files( $cache_dir, 1 );
+	$files     = array_filter( $files, 'is_file' );
 
-
-/**
- * Returns an absolute path to a file in the local cache folder.
- *
- * @since 1.0.0
- *
- * @param string $file Name of a file in the local cache folder.
- *
- * @return string The absolute path to the local file.
- */
-function get_cache_file_path( string $file ) : string {
-	if ( ! defined( 'GDPR_CACHE_BASE_DIR' ) ) {
-		$wp_upload = wp_upload_dir();
-		$base_path = $wp_upload['basedir'] . DIRECTORY_SEPARATOR . 'gdpr-cache' . DIRECTORY_SEPARATOR;
-		wp_mkdir_p( $base_path );
-
-		define( 'GDPR_CACHE_BASE_DIR', $base_path );
-	}
-
-	return GDPR_CACHE_BASE_DIR . $file;
-}
-
-
-/**
- * Returns an absolute URL to a file in the local cache folder.
- *
- * @since 1.0.0
- *
- * @param string $file Name of a file in the local cache folder.
- *
- * @return string The absolute URL to the local file.
- */
-function get_cache_file_url( string $file ) : string {
-	if ( ! defined( 'GDPR_CACHE_BASE_URL' ) ) {
-		$wp_upload = wp_upload_dir();
-		$base_url  = $wp_upload['baseurl'] . '/gdpr-cache/';
-		define( 'GDPR_CACHE_BASE_URL', $base_url );
-	}
-
-	return GDPR_CACHE_BASE_URL . $file;
+	// Delete all cache files.
+	array_map( 'unlink', $files );
 }
 
 
@@ -106,6 +133,11 @@ function get_cache_file_url( string $file ) : string {
  * Translates an external URL to a local URL.
  * Only works, when the external URL was cached via `cache_file_locally()`,
  * otherwise returns false.
+ *
+ * When an asset is cached but outdated, this function invalidates the cache
+ * and enqueues a background task to refresh the asset, but return the local
+ * URL of the outdated asset. The asset is usually refreshed within a few
+ * seconds, so the outdated asset is only served for a very short time.
  *
  * @since 1.0.0
  *
@@ -115,22 +147,27 @@ function get_cache_file_url( string $file ) : string {
  * asset, or false when that cache does not exist.
  */
 function get_local_url( string $url ) {
-	$cache = get_cached_data();
-	if ( ! isset( $cache[ $url ] ) ) {
-		return false;
-	}
-	$item = $cache[ $url ];
-	if ( empty( $item['expires'] ) || empty( $item['file'] ) ) {
-		return false;
-	}
-	if ( $item['expires'] < time() ) {
-		return false;
-	}
-	if ( ! file_exists( get_cache_file_path( $item['file'] ) ) ) {
-		return false;
+	$status = get_asset_status( $url );
+
+	if ( 'missing' === $status ) {
+		// Hard fail: Asset not cached yet.
+		return enqueue_asset( $url );
 	}
 
-	return get_cache_file_url( $item['file'] );
+	if ( 'expired' === $status ) {
+		// Soft fail: Asset cached but invalidated.
+		// Enqueue cache-refresh of the asset but serve the outdated file.
+		$res = enqueue_asset( $url );
+
+		if ( $res ) {
+			return $res;
+		}
+	}
+
+	$cache = get_cached_data();
+	$item  = $cache[ $url ];
+
+	return build_cache_file_url( $item['file'] );
 }
 
 
@@ -145,7 +182,7 @@ function get_local_url( string $url ) {
  *
  * @return string Returns the URL to the local copy of the given asset.
  */
-function set_local_path( string $url, string $file, int $expiration = 0 ) : string {
+function set_local_item( string $url, string $file, int $expiration = 0 ) : string {
 	$cache = get_cached_data();
 
 	if ( $expiration < 1 ) {
@@ -153,13 +190,14 @@ function set_local_path( string $url, string $file, int $expiration = 0 ) : stri
 	}
 
 	$cache[ $url ] = [
+		'created' => time(),
 		'expires' => time() + $expiration,
 		'file'    => $file,
 	];
 
 	set_cached_data( $cache );
 
-	return get_cache_file_url( $file );
+	return build_cache_file_url( $file );
 }
 
 
@@ -169,21 +207,16 @@ function set_local_path( string $url, string $file, int $expiration = 0 ) : stri
  * This function updates the DB cache and returns the absolute URL to the
  * local cache file when done.
  *
- * @param string $url
- * @param string $type The file type (extension).
+ * @param string $url The external URL to cache.
  *
  * @return string|false URL to the local cache file. False, when the file could
  * not be downloaded to the local cache folder.
  */
-function cache_file_locally( string $url, string $type ) : string {
-	// Could be an empty string, theoretically.
-	if ( ! $type ) {
-		$type = 'tmp';
-	}
-
+function cache_file_locally( string $url ) : string {
+	$type       = get_url_type( $url );
 	$timeout    = 300;
 	$filename   = md5( $url ) . '.' . $type;
-	$cache_path = get_cache_file_path( $filename );
+	$cache_path = build_cache_file_path( $filename );
 
 	// Download the remote asset to a local temp file.
 	$resp = wp_safe_remote_get(
@@ -195,7 +228,7 @@ function cache_file_locally( string $url, string $type ) : string {
 		]
 	);
 
-	if ( is_wp_error( $resp ) ) {
+	if ( is_wp_error( $resp ) || ! filesize( $cache_path ) ) {
 		if ( file_exists( $cache_path ) ) {
 			unlink( $cache_path );
 		}
@@ -218,66 +251,5 @@ function cache_file_locally( string $url, string $type ) : string {
 	// within that file.
 	parse_cache_contents( $type, $cache_path );
 
-	return set_local_path( $url, $filename, $expires );
-}
-
-
-/**
- * Scans the contents of the cached file to download and cache dependencies that
- * are loaded by the cached asset.
- *
- * @since 1.0.0
- *
- * @param string $type The file type that's parsed (css|js|ttf|...)
- * @param string $path Full path to the local cache file.
- *
- * @return void
- */
-function parse_cache_contents( string $type, string $path ) {
-	if ( 'css' !== $type ) {
-		return;
-	}
-
-	/**
-	 * The $matches array has 4 elements:
-	 * [0] the full match, with url-prefix, the URI and the closing bracket
-	 * [1] the "url(" prefix
-	 * [2] the URI, with enclosing quotes <-- change this!
-	 * [3] the closing bracket
-	 *
-	 * @param array $matches Array with 4 elements.
-	 *
-	 * @return string The full match with a different URI
-	 */
-	$parse_dependency = function ( array $matches ) : string {
-		$uri = trim( $matches[2], '"\'' );
-
-		$path = parse_url( $uri, PHP_URL_PATH );
-		$type = pathinfo( $path, PATHINFO_EXTENSION );
-
-		// Try to cache the external dependency.
-		$local_uri = swap_to_local_asset( $uri, $type );
-
-		if ( $local_uri ) {
-			return $matches[1] . $local_uri . $matches[3];
-		} else {
-			return $matches[1] . $uri . $matches[3];
-		}
-	};
-
-	// Read the file contents
-	$contents = file_get_contents( $path );
-
-	$contents = preg_replace_callback(
-		'/([:\s]url\s*\()("[^"]*?"|\'[^\']*?\'|[^"\'][^)]*?)(\))/',
-		$parse_dependency,
-		$contents,
-		- 1,
-		$count
-	);
-
-	// In case an asset was downloaded and cached, update the local file.
-	if ( $count ) {
-		file_put_contents( $path, $contents );
-	}
+	return set_local_item( $url, $filename, $expires );
 }
