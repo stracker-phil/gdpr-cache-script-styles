@@ -167,6 +167,14 @@ function run_background_tasks() {
 
 	define( 'GDPR_CACHE__IS_BACKGROUND_WORKER', true );
 
+	/**
+	 * Action that fires before the background worker starts to process
+	 * the enqueued assets.
+	 *
+	 * @since 1.0.0
+	 */
+	do_action( 'gdpr_cache_before_worker' );
+
 	// Lock the worker task.
 	update_option( GDPR_CACHE_WORKER_LOCK, time() );
 
@@ -190,5 +198,13 @@ function run_background_tasks() {
 
 	// Unlock the worker task.
 	delete_option( GDPR_CACHE_WORKER_LOCK );
+
+	/**
+	 * Action that fires after the background worker finished all enqueued
+	 * tasks and cleaned up.
+	 *
+	 * @since 1.0.0
+	 */
+	do_action( 'gdpr_cache_after_worker' );
 }
 

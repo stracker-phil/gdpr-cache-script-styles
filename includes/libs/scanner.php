@@ -37,7 +37,19 @@ function scan_external_assets( string $source ) : string {
 	}
 
 	if ( is_external_url( $source ) ) {
-		$source = swap_to_local_asset( $source );
+		/**
+		 * Determines whether the specified URL should be swapped with a local
+		 *
+		 * @sine 1.0.0
+		 *
+		 * @param bool   $should_swap Whether to download and cache the asset locally.
+		 * @param string $source      The assets external URL.
+		 */
+		$should_swap = apply_filters( 'gdpr_cache_swap_asset', true, $source );
+
+		if ( $should_swap ) {
+			$source = swap_to_local_asset( $source );
+		}
 	}
 
 	return $source;

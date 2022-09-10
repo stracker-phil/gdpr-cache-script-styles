@@ -1,6 +1,6 @@
 <?php
 /**
- * GDPR Asset Cache
+ * GDPR Cache Scripts & Styles
  *
  * @formatter:off
  * @author      Philipp Stracker
@@ -9,12 +9,12 @@
  * @license     GPL-2.0-or-later
  *
  * @wordpress-plugin
- * Plugin Name: GDPR Asset Cache
+ * Plugin Name: GDPR Cache Scripts & Styles
  * Plugin URI:  https://github.com/divimode/gdpr-cache-script-styles
  * Description: Caches external scripts and styles and serves them from your local website to make it more compliant with GDPR regulations
  * Version:     1.0.0
- * Author:      Philipp Stracker
- * Author URI:  https://codeable.io/developers/philipp-stracker/
+ * Author:      Divimode
+ * Author URI:  https://divimode.com/
  * Text Domain: gdpr-cache
  * License:     GPL v2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt

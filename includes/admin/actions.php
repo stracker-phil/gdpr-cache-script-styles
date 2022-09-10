@@ -17,6 +17,8 @@ add_action( 'admin_init', __NAMESPACE__ . '\process_actions' );
 
 add_action( 'gdpr_cache_do_flush', __NAMESPACE__ . '\action_flush_cache' );
 
+register_deactivation_hook( GDPR_CACHE_PLUGIN_FILE, __NAMESPACE__ . '\action_deactivate' );
+
 // ----------------------------------------------------------------------------
 
 
@@ -61,8 +63,19 @@ function process_actions() {
  * @return void
  */
 function action_flush_cache() {
-	flush_cache();
+	flush_cache( true );
 
 	wp_safe_redirect( add_query_arg( [ 'update' => 'flushed' ] ) );
 	exit;
+}
+
+
+/**
+ * Deactivation hook to clean up the cache.
+ *
+ * @since 1.0.0
+ * @return void
+ */
+function action_deactivate() {
+	flush_cache();
 }

@@ -51,6 +51,8 @@ foreach ( $assets as $url => $item ) {
 		'url'          => $url,
 		'status'       => $status,
 		'status_label' => $status_label,
+		'created'      => date( 'Y-m-d H:i', $item['created'] ),
+		'expires'      => date( 'Y-m-d H:i', $item['expires'] ),
 	];
 }
 
@@ -67,6 +69,8 @@ foreach ( $queue as $url ) {
 		'url'          => $url,
 		'status'       => $status,
 		'status_label' => $status_labels[ $status ],
+		'created'      => '',
+		'expires'      => '',
 	];
 }
 
@@ -94,7 +98,10 @@ foreach ( $counts as $status => $count ) {
 	<form method="post">
 		<h2><?php esc_html_e( 'Cache Control', 'gdpr-cache' ); ?></h2>
 		<p>
-			<?php esc_html_e( 'Flushing the cache will instantly delete any cached assets and start to download all assets from the remote servers on the next request.', 'gdpr-cache' ); ?>
+			<?php esc_html_e( 'Invalidating the cache will expire all cached files. The plugin will start to download the latest version of all files on the next request. While the cache is regenerated, the expired files are served.', 'gdpr-cache' ); ?>
+		</p>
+		<p>
+			<?php esc_html_e( 'To complete delete the entire cache, you need to disable the plugin.', 'gdpr-cache' ); ?>
 		</p>
 		<div class="gdpr-cache-reset">
 			<p class="submit">
@@ -103,7 +110,7 @@ foreach ( $counts as $status => $count ) {
 						name="submit"
 						id="submit"
 						class="button"
-						value="<?php esc_attr_e( 'Flush Cache', 'gdpr-cache' ) ?>"
+						value="<?php esc_attr_e( 'Invalidate Cache', 'gdpr-cache' ) ?>"
 				>
 			</p>
 		</div>
@@ -117,7 +124,7 @@ foreach ( $counts as $status => $count ) {
 		<?php echo implode( ' | </li> ', $subsubsub ); ?>
 	</ul>
 
-	<?php if ( ! $assets ): ?>
+	<?php if ( ! $items ): ?>
 		<p class="widefat">
 			<em><?php esc_html_e( 'No external assets found', 'gdpr-cache' ); ?></em>
 		</p>
@@ -126,7 +133,15 @@ foreach ( $counts as $status => $count ) {
 			<thead>
 			<tr>
 				<th class="asset-url"><?php esc_html_e( 'URL', 'gdpr-cache' ); ?></th>
-				<th class="asset-status"><?php esc_html_e( 'Status', 'gdpr-cache' ); ?></th>
+				<th
+						class="asset-status" style="width:100px"
+				><?php esc_html_e( 'Status', 'gdpr-cache' ); ?></th>
+				<th
+						class="asset-created" style="width:125px"
+				><?php esc_html_e( 'Created', 'gdpr-cache' ); ?></th>
+				<th
+						class="asset-expires" style="width:125px"
+				><?php esc_html_e( 'Expires', 'gdpr-cache' ); ?></th>
 			</tr>
 			</thead>
 			<?php foreach ( $items as $item ): ?>
@@ -135,6 +150,8 @@ foreach ( $counts as $status => $count ) {
 					<td class="asset-status">
 						<?php echo esc_html( $item['status_label'] ); ?>
 					</td>
+					<td class="asset-created"><?php echo esc_html( $item['created'] ); ?></td>
+					<td class="asset-expires"><?php echo esc_html( $item['expires'] ); ?></td>
 				</tr>
 			<?php endforeach; ?>
 		</table>

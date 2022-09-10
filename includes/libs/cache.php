@@ -110,22 +110,45 @@ function get_asset_status( string $url ) : string {
 
 
 /**
- * Flushes the entire GDPR cache.
+ * Purges or invalidates the entire GDPR cache.
+ *
+ * Purge: All cache-files and DB states are deleted. For a few minutes, external
+ * assets might be served, while the cache is re-populated.
+ *
+ * Invalidate: All cache items are expired but cache-files and DB details are
+ * preserved. The website continues to serve cached files, but those files are
+ * refreshed over the next couple of minutes.
  *
  * @since 1.0.0
+ *
+ * @param bool $invalidate When true, the cache is invalidated, and not flushed.
+ *
  * @return void
  */
-function flush_cache() {
-	// Flush the cache and empty DB item.
-	set_cached_data( [] );
+function flush_cache( bool $invalidate = false ) {
+	if ( $invalidate ) {
+		$data = get_cached_data();
 
-	// Get a list of all files inside the cache-folder.
-	$cache_dir = build_cache_file_path( '' );
-	$files     = list_files( $cache_dir, 1 );
-	$files     = array_filter( $files, 'is_file' );
+		foreach ( $data as $url => $item ) {
+			$data[ $url ]['expires'] = 0;
+		}
 
-	// Delete all cache files.
-	array_map( 'unlink', $files );
+		set_cached_data( $data );
+	} else {
+		// Flush the cache and empty DB item.
+		set_cached_data( [] );
+
+		// Also delete the background worker queue.
+		set_worker_queue( [] );
+
+		// Get a list of all files inside the cache-folder.
+		$cache_dir = build_cache_file_path( '' );
+		$files     = list_files( $cache_dir, 1 );
+		$files     = array_filter( $files, 'is_file' );
+
+		// Delete all cache files.
+		array_map( 'unlink', $files );
+	}
 }
 
 
@@ -213,9 +236,26 @@ function set_local_item( string $url, string $file, int $expiration = 0 ) : stri
  * not be downloaded to the local cache folder.
  */
 function cache_file_locally( string $url ) : string {
-	$type       = get_url_type( $url );
-	$timeout    = 300;
-	$filename   = md5( $url ) . '.' . $type;
+	$type    = get_url_type( $url );
+	$timeout = 300;
+
+	$headers = [];
+
+	/**
+	 * Some assets return different content based on user-agent, so this
+	 * filter allows us to inject those details.
+	 */
+	// $headers = apply_filters(
+	//     'gdpr_cache_download_asset_headers',
+	//     $headers,
+	//     $url
+	// );
+	//
+	// $key        = md5( json_encode( $headers ) );
+
+	$domain     = parse_url( $url, PHP_URL_HOST );
+	$parts      = [ $domain, md5( $url ), $type ];
+	$filename   = implode( '.', $parts );
 	$cache_path = build_cache_file_path( $filename );
 
 	// Download the remote asset to a local temp file.
@@ -225,10 +265,14 @@ function cache_file_locally( string $url ) : string {
 			'timeout'  => $timeout,
 			'stream'   => true,
 			'filename' => $cache_path,
+			'headers'  => $headers,
 		]
 	);
 
-	if ( is_wp_error( $resp ) || ! filesize( $cache_path ) ) {
+	if (
+		is_wp_error( $resp ) ||
+		( file_exists( $cache_path ) && ! filesize( $cache_path ) )
+	) {
 		if ( file_exists( $cache_path ) ) {
 			unlink( $cache_path );
 		}
