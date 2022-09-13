@@ -21,15 +21,14 @@ $status_labels = [
 	'enqueued' => __( 'Enqueued', 'gdpr-cache' ),
 ];
 
-$items     = [];
-$counts    = [
+$items  = [];
+$counts = [
 	'all'      => 0,
 	'valid'    => 0,
 	'expired'  => 0,
 	'missing'  => 0,
 	'enqueued' => 0,
 ];
-$subsubsub = [];
 
 foreach ( $assets as $url => $item ) {
 	$status_label = '';
@@ -74,19 +73,6 @@ foreach ( $queue as $url ) {
 	];
 }
 
-foreach ( $counts as $status => $count ) {
-	if ( ! $count ) {
-		continue;
-	}
-
-	$subsubsub[] = sprintf(
-		'<li class="%s"> %s <span class="count">(%d)</span>',
-		esc_attr( $status ),
-		esc_html( $status_labels[ $status ] ),
-		(int) $count
-	);
-}
-
 ?>
 <div class="wrap">
 	<h1><?php esc_html_e( 'GDPR Cache Options', 'gdpr-cache' ); ?></h1>
@@ -120,8 +106,17 @@ foreach ( $counts as $status => $count ) {
 
 	<h2><?php esc_html_e( 'Cached Assets', 'gdpr-cache' ); ?></h2>
 
-	<ul class="subsubsub" style="margin-bottom:12px">
-		<?php echo implode( ' | </li> ', $subsubsub ); ?>
+	<ul class="subsubsub">
+		<?php foreach ( $counts as $status => $count ) : ?>
+			<?php if ( ! $count ) {
+				continue;
+			} ?>
+
+			<li class="count-<?php echo esc_attr( $status ) ?>">
+				<span class="status"><?php echo esc_html( $status_labels[ $status ] ) ?></span>
+				<span class="count">(<?php echo esc_html( (int) $count ); ?>)</span>
+			</li>
+		<?php endforeach; ?>
 	</ul>
 
 	<?php if ( ! $items ): ?>
@@ -156,5 +151,19 @@ foreach ( $counts as $status => $count ) {
 			<?php endforeach; ?>
 		</table>
 	<?php endif; ?>
-
 </div>
+
+<style>
+	.subsubsub {
+		margin-bottom: 12px
+	}
+
+	.subsubsub li + li:before {
+		content: '|';
+		padding: 0 2px;
+	}
+
+	.subsubsub .count-all .status {
+		font-weight: bold;
+	}
+</style>
