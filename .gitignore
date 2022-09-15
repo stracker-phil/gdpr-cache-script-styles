@@ -1,0 +1,28 @@
+ # OS/Repo files
+.svn
+node_modules/
+vendor/
+composer
+composer.lock
+
+# Do not track the auto-built CSS/JS files in dev-repository.
+*.css.map
+*.js.map
+
+# Do not track development cache.
+/docs/_cache
+config.dev.bash
+
+# Do not track files from dev environment or symlinks.
+wp-config.php
+*.log
+
+# Do not track generated assets.
+/scripts/
+/styles/
+/shared/divimode/scripts/
+/shared/divimode/styles/
+
+# Track vendor scripts in the shared library
+!sources/scripts/vendor/
+config.local.bash

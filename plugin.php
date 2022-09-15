@@ -43,6 +43,13 @@ namespace GdprCache;
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * The current plugin version.
+ *
+ * @var string
+ */
+const GDPR_CACHE_VERSION = '1.0.0';
+
+/**
  * Absolute path and file name of the main plugin file.
  *
  * @var string

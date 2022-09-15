@@ -1,0 +1,8 @@
+{
+  "name": "gdpr-asset-cache",
+  "version": "1.0.0",
+  "description": "WordPress plugin to cache scripts and styles",
+  "repository": "https://github.com/divimode/gdpr-cache-script-styles",
+  "author": "Philipp Stracker <philipp@divimode.com>",
+  "license": "GPL-2.0-or-later"
+}
