@@ -29,7 +29,7 @@ add_filter( 'style_loader_src', __NAMESPACE__ . '\scan_external_assets' );
  *
  * @return string URL to the local script or style.
  */
-function scan_external_assets( string $source ) : string {
+function scan_external_assets( $source ) {
 	// Source is empty when asset is loaded via load-scripts.php or load-styles.php
 	// Those assets are always local, and we can safely exit early.
 	if ( ! $source ) {
@@ -65,7 +65,7 @@ function scan_external_assets( string $source ) : string {
  *
  * @return string
  */
-function swap_to_local_asset( string $url ) : string {
+function swap_to_local_asset( $url ) {
 	// When an invalid URL is provided, bail.
 	if ( ! $url || false === strpos( $url, '//' ) ) {
 		return $url;
@@ -129,7 +129,9 @@ function swap_to_local_asset( string $url ) : string {
  *
  * @return void
  */
-function parse_cache_contents( string $type, string $path ) {
+function parse_cache_contents( $type, $path ) {
+	$fs = get_filesystem();
+
 	if ( 'css' !== $type ) {
 		return;
 	}
@@ -145,7 +147,7 @@ function parse_cache_contents( string $type, string $path ) {
 	 *
 	 * @return string The full match with a different URI
 	 */
-	$parse_dependency = function ( array $matches ) : string {
+	$parse_dependency = function ( array $matches ) {
 		$uri = trim( $matches[2], '"\'' );
 
 		$type = get_url_type( $uri );
@@ -161,7 +163,7 @@ function parse_cache_contents( string $type, string $path ) {
 	};
 
 	// Read the file contents
-	$contents = file_get_contents( $path );
+	$contents = $fs->get_contents( $path );
 
 	$contents = preg_replace_callback(
 		'/([:\s]url\s*\()("[^"]*?"|\'[^\']*?\'|[^"\'][^)]*?)(\))/',
@@ -173,6 +175,6 @@ function parse_cache_contents( string $type, string $path ) {
 
 	// In case an asset was downloaded and cached, update the local file.
 	if ( $count ) {
-		file_put_contents( $path, $contents );
+		$fs->put_contents( $path, $contents );
 	}
 }

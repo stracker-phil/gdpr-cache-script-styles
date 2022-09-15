@@ -42,7 +42,7 @@ function process_actions() {
 	// Remove the "gdpr-cache-" prefix from the action.
 	$gdpr_action = substr( $action, 11 );
 
-	if ( ! wp_verify_nonce( $_POST['_wpnonce'], $gdpr_action ) ) {
+	if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['_wpnonce'] ) ), $gdpr_action ) ) {
 		return;
 	}
 
@@ -65,7 +65,13 @@ function process_actions() {
 function action_flush_cache() {
 	flush_cache( true );
 
-	wp_safe_redirect( add_query_arg( [ 'update' => 'flushed' ] ) );
+	$redirect_to = add_query_arg( [
+		'update'   => 'flushed',
+		'_wpnonce' => wp_create_nonce( 'gdpr-cache' ),
+	] );
+
+	wp_safe_redirect( $redirect_to );
+
 	exit;
 }
 

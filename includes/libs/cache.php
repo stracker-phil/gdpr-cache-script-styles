@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * @since 1.0.0
  * @return array List of external assets
  */
-function get_cached_data() : array {
+function get_cached_data() {
 	$data = wp_cache_get( 'data', 'gdpr-cache' );
 
 	if ( ! is_array( $data ) ) {
@@ -81,7 +81,7 @@ function set_cached_data( array $data ) {
  *
  * @return string The asset status [valid|expired|missing].
  */
-function get_asset_status( string $url ) : string {
+function get_asset_status( $url ) {
 	$data = get_cached_data();
 
 	if ( empty( $data[ $url ] ) ) {
@@ -125,7 +125,7 @@ function get_asset_status( string $url ) : string {
  *
  * @return void
  */
-function flush_cache( bool $invalidate = false ) {
+function flush_cache( $invalidate = false ) {
 	if ( $invalidate ) {
 		$data = get_cached_data();
 
@@ -169,7 +169,7 @@ function flush_cache( bool $invalidate = false ) {
  * @return string|false Returns the URL to the local copy of the given external
  * asset, or false when that cache does not exist.
  */
-function get_local_url( string $url ) {
+function get_local_url( $url ) {
 	$status = get_asset_status( $url );
 
 	if ( 'missing' === $status ) {
@@ -205,7 +205,7 @@ function get_local_url( string $url ) {
  *
  * @return string Returns the URL to the local copy of the given asset.
  */
-function set_local_item( string $url, string $file, int $expiration = 0 ) : string {
+function set_local_item( $url, $file, $expiration = 0 ) {
 	$cache = get_cached_data();
 
 	if ( $expiration < 1 ) {
@@ -235,7 +235,7 @@ function set_local_item( string $url, string $file, int $expiration = 0 ) : stri
  * @return string|false URL to the local cache file. False, when the file could
  * not be downloaded to the local cache folder.
  */
-function cache_file_locally( string $url ) : string {
+function cache_file_locally( $url ) {
 	$type    = get_url_type( $url );
 	$timeout = 300;
 
@@ -253,7 +253,7 @@ function cache_file_locally( string $url ) : string {
 	//
 	// $key        = md5( json_encode( $headers ) );
 
-	$domain     = parse_url( $url, PHP_URL_HOST );
+	$domain     = wp_parse_url( $url, PHP_URL_HOST );
 	$parts      = [ $domain, md5( $url ), $type ];
 	$filename   = implode( '.', $parts );
 	$cache_path = build_cache_file_path( $filename );

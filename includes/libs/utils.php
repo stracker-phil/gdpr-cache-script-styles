@@ -11,6 +11,9 @@ namespace GdprCache;
 defined( 'ABSPATH' ) || exit;
 
 
+use WP_Filesystem_Base;
+
+
 // ----------------------------------------------------------------------------
 
 
@@ -24,7 +27,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @return bool True, if the provided URL is an external source.
  */
-function is_external_url( string $url ) : bool {
+function is_external_url( $url ) {
 	// Relative URLs are always local to the current domain.
 	if ( 0 === strpos( $url, '/' ) ) {
 		return false;
@@ -46,7 +49,7 @@ function is_external_url( string $url ) : bool {
  *
  * @return string The absolute path to the local file.
  */
-function build_cache_file_path( string $file ) : string {
+function build_cache_file_path( $file ) {
 	if ( ! defined( 'GDPR_CACHE_BASE_DIR' ) ) {
 		$wp_upload = wp_upload_dir();
 		$base_path = $wp_upload['basedir'] . DIRECTORY_SEPARATOR . 'gdpr-cache' . DIRECTORY_SEPARATOR;
@@ -68,7 +71,7 @@ function build_cache_file_path( string $file ) : string {
  *
  * @return string The absolute URL to the local file.
  */
-function build_cache_file_url( string $file ) : string {
+function build_cache_file_url( $file ) {
 	if ( ! defined( 'GDPR_CACHE_BASE_URL' ) ) {
 		$wp_upload = wp_upload_dir();
 		$base_url  = $wp_upload['baseurl'] . '/gdpr-cache/';
@@ -88,7 +91,7 @@ function build_cache_file_url( string $file ) : string {
  *
  * @return string The file type of the URI contents - e.g. css, js, ttf.
  */
-function get_url_type( string $uri ) : string {
+function get_url_type( $uri ) {
 	$types         = [
 		'css',
 		'js',
@@ -114,7 +117,7 @@ function get_url_type( string $uri ) : string {
 	];
 
 	// First, analyze the URI and see if it ends with a valid type.
-	$path = parse_url( $uri, PHP_URL_PATH );
+	$path = wp_parse_url( $uri, PHP_URL_PATH );
 	if ( preg_match( '/\w+$/', $path, $matches ) ) {
 		$type = strtolower( $matches[0] );
 		if ( array_key_exists( $type, $types ) ) {
@@ -135,3 +138,31 @@ function get_url_type( string $uri ) : string {
 	// Unknown data type.
 	return 'tmp';
 }
+
+
+/**
+ * Returns a WP_Filesystem instance.
+ *
+ * @soince 1.0.0
+ * @return WP_Filesystem_Base
+ */
+function get_filesystem() {
+	global $gdpr_cache_fs;
+
+	if ( empty( $gdpr_cache_fs ) ) {
+		$replace_filesystem_method = function () {
+			return 'direct';
+		};
+
+		require_once ABSPATH . '/wp-admin/includes/file.php';
+
+		add_filter( 'filesystem_method', $replace_filesystem_method );
+		WP_Filesystem();
+
+		remove_filter( 'filesystem_method', $replace_filesystem_method );
+		$gdpr_cache_fs = $GLOBALS['wp_filesystem'];
+	}
+
+	return $gdpr_cache_fs;
+}
+

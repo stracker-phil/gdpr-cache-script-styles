@@ -47,9 +47,14 @@ function register_admin_menu() {
  * @return void
  */
 function show_admin_notices() {
-	if ( empty( $_GET['update'] ) ) {
+	if ( empty( $_GET['_wpnonce'] ) || empty( $_GET['update'] ) ) {
 		return;
 	}
+
+	if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_GET['_wpnonce'] ) ), 'gdpr-cache' ) ) {
+		return;
+	}
+
 	$notice = sanitize_key( wp_unslash( $_GET['update'] ) );
 
 	if ( empty( $notice ) ) {

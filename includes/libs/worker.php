@@ -24,7 +24,7 @@ add_action( 'gdpr_cache_worker', __NAMESPACE__ . '\run_background_tasks' );
  * @since 1.0.0
  * @return array
  */
-function get_worker_queue() : array {
+function get_worker_queue() {
 	$queue = get_option( GDPR_CACHE_QUEUE );
 
 	if ( ! is_array( $queue ) ) {
@@ -55,7 +55,7 @@ function set_worker_queue( array $queue ) {
  * @since 1.0.0
  * @return bool True if the worker queue is not empty.
  */
-function has_worker_queue() : bool {
+function has_worker_queue() {
 	return count( get_worker_queue() ) > 0;
 }
 
@@ -99,7 +99,7 @@ function spawn_worker() {
  * @return string|false Either false, when the asset was enqueued, or the local
  * URL when the asset was processed instantly.
  */
-function enqueue_asset( string $url ) {
+function enqueue_asset( $url ) {
 	if ( ! $url || false === strpos( $url, '//' ) ) {
 		return false;
 	}
@@ -133,7 +133,7 @@ function enqueue_asset( string $url ) {
  * @since 1.0.0
  * @return bool True, if the background worker is spawned and running.
  */
-function is_worker_busy() : bool {
+function is_worker_busy() {
 	// Check if the background worker is running
 	$lock = (int) get_option( GDPR_CACHE_WORKER_LOCK );
 

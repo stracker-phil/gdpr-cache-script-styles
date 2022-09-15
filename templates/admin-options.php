@@ -32,26 +32,26 @@ $counts = [
 
 foreach ( $assets as $url => $item ) {
 	$status_label = '';
-	$status       = get_asset_status( $url );
+	$item_status  = get_asset_status( $url );
 
-	if ( 'valid' !== $status ) {
+	if ( 'valid' !== $item_status ) {
 		enqueue_asset( $url );
 	}
-	if ( 'missing' === $status && in_array( $url, $queue ) ) {
-		$status = 'enqueued';
+	if ( 'missing' === $item_status && in_array( $url, $queue ) ) {
+		$item_status = 'enqueued';
 	}
-	if ( array_key_exists( $status, $status_labels ) ) {
-		$status_label = $status_labels[ $status ];
+	if ( array_key_exists( $item_status, $status_labels ) ) {
+		$status_label = $status_labels[ $item_status ];
 	}
 	$counts['all'] ++;
-	$counts[ $status ] ++;
+	$counts[ $item_status ] ++;
 
 	$items[] = [
 		'url'          => $url,
-		'status'       => $status,
+		'status'       => $item_status,
 		'status_label' => $status_label,
-		'created'      => date( 'Y-m-d H:i', $item['created'] ),
-		'expires'      => date( 'Y-m-d H:i', $item['expires'] ),
+		'created'      => gmdate( 'Y-m-d H:i', $item['created'] ),
+		'expires'      => gmdate( 'Y-m-d H:i', $item['expires'] ),
 	];
 }
 
@@ -60,14 +60,14 @@ foreach ( $queue as $url ) {
 		continue;
 	}
 
-	$status = 'enqueued';
+	$item_status = 'enqueued';
 	$counts['all'] ++;
-	$counts[ $status ] ++;
+	$counts[ $item_status ] ++;
 
 	$items[] = [
 		'url'          => $url,
-		'status'       => $status,
-		'status_label' => $status_labels[ $status ],
+		'status'       => $item_status,
+		'status_label' => $status_labels[ $item_status ],
 		'created'      => '',
 		'expires'      => '',
 	];
@@ -107,13 +107,13 @@ foreach ( $queue as $url ) {
 	<h2><?php esc_html_e( 'Cached Assets', 'gdpr-cache' ); ?></h2>
 
 	<ul class="subsubsub">
-		<?php foreach ( $counts as $status => $count ) : ?>
+		<?php foreach ( $counts as $item_status => $count ) : ?>
 			<?php if ( ! $count ) {
 				continue;
 			} ?>
 
-			<li class="count-<?php echo esc_attr( $status ) ?>">
-				<span class="status"><?php echo esc_html( $status_labels[ $status ] ) ?></span>
+			<li class="count-<?php echo esc_attr( $item_status ) ?>">
+				<span class="status"><?php echo esc_html( $status_labels[ $item_status ] ) ?></span>
 				<span class="count">(<?php echo esc_html( (int) $count ); ?>)</span>
 			</li>
 		<?php endforeach; ?>
