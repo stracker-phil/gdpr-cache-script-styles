@@ -242,10 +242,18 @@ function cache_file_locally( $url ) {
 	// Get HTTP request headers for requesting the remote file.
 	$headers = get_remote_request_headers( $url, $type );
 
+	// Add a CRC32 key to generate a unique filename based on URL and headers.
+	$key = implode( ' ', [ $url, json_encode( $headers ) ] );
 
-	$domain     = wp_parse_url( $url, PHP_URL_HOST );
-	$parts      = [ $domain, md5( $url ), $type ];
-	$filename   = implode( '.', $parts );
+	$extension = implode( '.', [ '', crc32( $key ), $type ] );
+
+	// Create a normalized base-name that reflects the remote asset URI.
+	$base_name = substr( $url, strpos( $url, '//' ) + 2 );
+	$base_name = preg_replace( '/\W+/', '.', $base_name );
+	$base_name = substr( $base_name, 0, 250 - strlen( $extension ) );
+	$base_name = strtolower( trim( $base_name, '.' ) );
+
+	$filename   = $base_name . $extension;
 	$cache_path = build_cache_file_path( $filename );
 
 	// Download the remote asset to a local temp file.
