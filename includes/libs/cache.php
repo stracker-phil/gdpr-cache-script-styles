@@ -243,7 +243,7 @@ function cache_file_locally( $url ) {
 	$headers = get_remote_request_headers( $url, $type );
 
 	// Add a CRC32 key to generate a unique filename based on URL and headers.
-	$key = implode( ' ', [ $url, json_encode( $headers ) ] );
+	$key = implode( ' ', [ $url, wp_json_encode( $headers ) ] );
 
 	$extension = implode( '.', [ '', crc32( $key ), $type ] );
 
