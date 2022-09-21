@@ -7,7 +7,7 @@ Stable tag: 1.0.0
 License: GPL v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.txt
 
-Cache external scripts and styles, and serve them from your local website.
+Greatly enhances privacy of your website by embedding external scripts and styles.
 
 == Description ==
 
@@ -21,11 +21,21 @@ This plugin does not provide any guarantees of making your website GDPR-complian
 
 ## How it works
 
+> **Short**: External files are downloaded to your WordPress installation (into the uploads folder) and then served from there.
+
+**More details**:
+
 The plugin scans every URL that is enqueued via `wp_enqueue_script()` and `wp_enqueue_style()`. When detecting external URL, that file is saved to your uploads-folder and served from there.
 
 It also scans the contents of CSS files for external dependencies and also saves those files to your uploads-folder!
 
 Heads-up: For technical reasons, we cannot scan the contents of JS files for such dependencies - JS files can always inject external assets
+
+## No Output Buffer
+
+This plugin does not add any "output buffering" but scans the URLs which are enqueued via recommended WordPress functions.
+
+As a result, GDPR Asset Cache has practically no performance impact on your response time, no matter how big your website is.
 
 ## Background worker
 
@@ -43,13 +53,13 @@ When you deactivate the plugin, the entire cache is purged (all files are delete
 
 Automatic WordPress installer:
 
-1. Install the plugin from wordpress.org
+1. Install [the plugin from wordpress.org](https://wordpress.org/plugins/gdpr-cache-scripts-styles/)
 2. Activate it.
 3. Done! No configuration needed.
 
 From GitHub:
 
-1. Visit https://github.com/divimode/gdpr-cache-script-styles and download the repository zip file.
+1. Visit [github.com/divimode/gdpr-cache-script-styles](https://github.com/divimode/gdpr-cache-script-styles/) and download the repository zip file.
 2. Open your wp-admin > Plugins > Add New page and upload that zip file
 3. Activate the plugin.
 4. Done! No configuration needed.
@@ -66,6 +76,14 @@ We tested this plugin on numerous websites with different themes, and it was abl
 = Does this eliminate all external scripts? =
 Unfortunately, no. Some scripts (such as Google Maps scripts) will load external assets that cannot be detected or cached by this plugin.
 
+= I still see some requests to Google's Servers =
+Common reasons are:
+
+* Some scripts (like Google Maps) can dynamically load Google Fonts or other external resources. This cannot be prevented by this plugin.
+* A browser plugin loads external assets on every request. Test the page in an Incognito/Private window
+
+Also, some themes or performance plugins can embed the external resources in a way that our plugin cannot detect. If this is the case for you, please let us know. We might be able to adjust this plugin, or provide you with instructions on how to configure the plugin/theme to be compatible with GDPR Asset Cache.
+
 == Screenshots ==
 
 1. Without this plugin: A website uses a Google Font, and the visitor's browser connects to 2 external servers
@@ -73,6 +91,15 @@ Unfortunately, no. Some scripts (such as Google Maps scripts) will load external
 3. The options-page displays a list of all cached files and gives the option to invalidate all files.
 
 == Changelog ==
+
+= 1.0.1 =
+
+* New: A "Purge Cache" button to the plugin options page
+* New: Include a User-Agent when requesting remote files, to fetch WOFF2 fonts from Google instead of large TTF files
+* Fix: Correctly determine asset type from file extension to avoid "tmp" types
+* Improve: Color coding of the cache-status on the plugin options page
+* Improve: Local cache 1files reflect the entire remote URL, to add transparency over the file contents
+* Improve: Fix some typos and remove unused code
 
 = 1.0.0 =
 

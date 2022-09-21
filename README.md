@@ -1,6 +1,6 @@
 # GDPR Asset Cache
 
-Free WordPress plugin that caches external scripts and styles and serves them from your local website to make it more compliant with GDPR and CCPA regulations.
+Free WordPress plugin that greatly enhances privacy of your website by embedding external scripts and styles.
 
 ## Requirements
 
@@ -13,7 +13,11 @@ Free WordPress plugin that caches external scripts and styles and serves them fr
 2. Visit your **wp-admin > Plugins > Add New** page
 3. Hit the **Upload Plugin** button at the top of the page
 4. Upload the zip file
-5. Activate the plugin "GDPR Asset Cache"
+5. Activate the plugin "GDPR Asset Cache
+
+Or: 
+
+Install via your WordPress > Plugins page. Search for the plugin "GDPR Asset Cache", or download it from https://wordpress.org/plugins/gdpr-cache-scripts-styles/
 
 ## Usage
 
@@ -27,11 +31,21 @@ This plugin does not provide any guarantees of making your website GDPR-complian
 
 ### How it works
 
+> **Short**: External files are downloaded to your WordPress installation (into the uploads folder) and then served from there.
+
+**More details**:
+
 The plugin scans every URL that is enqueued via `wp_enqueue_script()` and `wp_enqueue_style()`. When detecting external URL, that file is saved to your uploads-folder and served from there.
 
 It also scans the contents of CSS files for external dependencies and also saves those files to your uploads-folder!
 
 Heads-up: For technical reasons, we cannot scan the contents of JS files for such dependencies - JS files can always inject external assets
+
+### No Output Buffer
+
+This plugin does not add any "output buffering" but scans the URLs which are enqueued via recommended WordPress functions.
+
+As a result, GDPR Asset Cache has practically no performance impact on your response time, no matter how big your website is.   
 
 ### Background worker
 
