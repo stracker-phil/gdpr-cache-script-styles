@@ -73,6 +73,15 @@ foreach ( $queue as $url ) {
 	];
 }
 
+$action_refresh = wp_nonce_url(
+	add_query_arg( [ 'action' => 'gdpr-cache-refresh' ] ),
+	'refresh'
+);
+$action_purge   = wp_nonce_url(
+	add_query_arg( [ 'action' => 'gdpr-cache-purge' ] ),
+	'purge'
+);
+
 ?>
 <div class="wrap">
 	<h1><?php esc_html_e( 'GDPR Cache Options', 'gdpr-cache' ); ?></h1>
@@ -82,27 +91,25 @@ foreach ( $queue as $url ) {
 	</p>
 
 	<form method="post">
-		<h2><?php esc_html_e( 'Cache Control', 'gdpr-cache' ); ?></h2>
-		<p>
+	<h2><?php esc_html_e( 'Cache Control', 'gdpr-cache' ); ?></h2>
+	<p>
 			<?php esc_html_e( 'Invalidating the cache will expire all cached files. The plugin will start to download the latest version of all files on the next request. While the cache is regenerated, the expired files are served.', 'gdpr-cache' ); ?>
-		</p>
-		<p>
+	</p>
+	<p>
 			<?php esc_html_e( 'To complete delete the entire cache, you need to disable the plugin.', 'gdpr-cache' ); ?>
+	</p>
+	<div class="gdpr-cache-reset">
+		<p class="submit">
+			<a href="<?php echo esc_url_raw( $action_refresh ) ?>" class="button-primary">
+				<?php esc_html_e( 'Refresh Cache', 'gdpr-cache' ) ?>
+			</a>
+			<a href="<?php echo esc_url_raw( $action_purge ) ?>" class="button">
+				<?php esc_html_e( 'Purge Cache', 'gdpr-cache' ) ?>
+			</a>
 		</p>
-		<div class="gdpr-cache-reset">
-			<p class="submit">
-				<input
-						type="submit"
-						name="submit"
-						id="submit"
-						class="button"
-						value="<?php esc_attr_e( 'Invalidate Cache', 'gdpr-cache' ) ?>"
-				>
-			</p>
-		</div>
-		<?php wp_nonce_field( 'flush' ); ?>
-		<input type="hidden" name="action" value="gdpr-cache-flush"/>
-	</form>
+	</div>
+	<?php wp_nonce_field( 'flush' ); ?>
+	<input type="hidden" name="action" value="gdpr-cache-flush"/>
 
 	<h2><?php esc_html_e( 'Cached Assets', 'gdpr-cache' ); ?></h2>
 

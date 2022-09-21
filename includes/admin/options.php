@@ -61,8 +61,10 @@ function show_admin_notices() {
 		return;
 	}
 
-	if ( 'flushed' === $notice ) {
-		add_action( 'admin_notices', __NAMESPACE__ . '\admin_notice_flushed' );
+	if ( 'refreshed' === $notice ) {
+		add_action( 'admin_notices', __NAMESPACE__ . '\admin_notice_refreshed' );
+	} elseif ( 'purged' === $notice ) {
+		add_action( 'admin_notices', __NAMESPACE__ . '\admin_notice_purged' );
 	}
 }
 
@@ -79,15 +81,30 @@ function render_admin_page() {
 
 
 /**
- * Outputs an admin notice: Cache flushed.
+ * Outputs an admin notice: Cache refreshed.
  *
  * @since 1.0.0
  * @return void
  */
-function admin_notice_flushed() {
+function admin_notice_refreshed() {
 	printf(
 		'<div class="notice-%s notice is-dismissible"><p>%s</p></div>',
 		'success',
-		esc_html__( 'Cache flushed', 'gdpr-cache' )
+		esc_html__( 'Refreshing the cache in the background', 'gdpr-cache' )
+	);
+}
+
+
+/**
+ * Outputs an admin notice: Cache purged.
+ *
+ * @since 1.0.1
+ * @return void
+ */
+function admin_notice_purged() {
+	printf(
+		'<div class="notice-%s notice is-dismissible"><p>%s</p></div>',
+		'success',
+		esc_html__( 'Cache purged', 'gdpr-cache' )
 	);
 }

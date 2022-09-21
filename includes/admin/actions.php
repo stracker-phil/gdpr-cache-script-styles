@@ -15,7 +15,9 @@ defined( 'ABSPATH' ) || exit;
 
 add_action( 'admin_init', __NAMESPACE__ . '\process_actions' );
 
-add_action( 'gdpr_cache_do_flush', __NAMESPACE__ . '\action_flush_cache' );
+add_action( 'gdpr_cache_do_refresh', __NAMESPACE__ . '\action_refresh_cache' );
+
+add_action( 'gdpr_cache_do_purge', __NAMESPACE__ . '\action_purge_cache' );
 
 register_deactivation_hook( GDPR_CACHE_PLUGIN_FILE, __NAMESPACE__ . '\action_deactivate' );
 
@@ -29,11 +31,11 @@ register_deactivation_hook( GDPR_CACHE_PLUGIN_FILE, __NAMESPACE__ . '\action_dea
  * @return void
  */
 function process_actions() {
-	if ( empty( $_POST['action'] ) || empty( $_POST['_wpnonce'] ) ) {
+	if ( empty( $_REQUEST['action'] ) || empty( $_REQUEST['_wpnonce'] ) ) {
 		return;
 	}
 
-	$action = sanitize_key( wp_unslash( $_POST['action'] ) );
+	$action = sanitize_key( wp_unslash( $_REQUEST['action'] ) );
 
 	if ( 0 !== strpos( $action, 'gdpr-cache-' ) ) {
 		return;
@@ -42,7 +44,7 @@ function process_actions() {
 	// Remove the "gdpr-cache-" prefix from the action.
 	$gdpr_action = substr( $action, 11 );
 
-	if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['_wpnonce'] ) ), $gdpr_action ) ) {
+	if ( ! wp_verify_nonce( sanitize_key( wp_unslash( $_REQUEST['_wpnonce'] ) ), $gdpr_action ) ) {
 		return;
 	}
 
@@ -57,16 +59,36 @@ function process_actions() {
 
 
 /**
- * Renders the admin option-page of our plugin.
+ * Initiates a cache-refresh and display a success message on the admin page.
  *
  * @since 1.0.0
  * @return void
  */
-function action_flush_cache() {
+function action_refresh_cache() {
 	flush_cache( true );
 
 	$redirect_to = add_query_arg( [
-		'update'   => 'flushed',
+		'update'   => 'refreshed',
+		'_wpnonce' => wp_create_nonce( 'gdpr-cache' ),
+	] );
+
+	wp_safe_redirect( $redirect_to );
+
+	exit;
+}
+
+
+/**
+ * Purges the cache and display a success message on the admin page.
+ *
+ * @since 1.0.1
+ * @return void
+ */
+function action_purge_cache() {
+	flush_cache();
+
+	$redirect_to = add_query_arg( [
+		'update'   => 'purged',
 		'_wpnonce' => wp_create_nonce( 'gdpr-cache' ),
 	] );
 
