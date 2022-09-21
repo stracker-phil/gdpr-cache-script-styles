@@ -1,5 +1,5 @@
 === GDPR Cache Scripts & Styles ===
-Tags: gdpr, ccpa, privacy, asset cache
+Tags: gdpr, ccpa, privacy, asset cache, script cache, style cache, embed google fonts, local google fonts
 Requires at least: 5.8
 Tested up to: 6.0.2
 Requires PHP: 7.4
