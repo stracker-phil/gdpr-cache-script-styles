@@ -172,4 +172,29 @@ $action_purge   = wp_nonce_url(
 	.subsubsub .count-all .status {
 		font-weight: bold;
 	}
+
+	.widefat .asset-status {
+		vertical-align: middle;
+		text-align: center;
+	}
+
+	.status-valid .asset-status {
+		background: #c8e6c940;
+		color: #005005;
+	}
+
+	.status-expired .asset-status {
+		background: #ffecb340;
+		color: #c56000;
+	}
+
+	.status-missing .asset-status {
+		background: #ffccbc40;
+		color: #9f0000;
+	}
+
+	.status-enqueued .asset-status {
+		background: #e1bee740;
+		color: #38006b;
+	}
 </style>
