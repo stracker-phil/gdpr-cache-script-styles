@@ -115,24 +115,72 @@ function get_url_type( $uri ) {
 		'image/png'       => 'png',
 		'image/gif'       => 'gif',
 	];
+	$sub_types     = [
+		'css'        => 'css',
+		'javascript' => 'js',
+		'ecmascript' => 'js',
+		'ttf'        => 'ttf',
+		'otf'        => 'otf',
+		'woff'       => 'woff',
+		'woff2'      => 'woff2',
+		'jpeg'       => 'jpg',
+		'jpg'        => 'jpg',
+		'png'        => 'png',
+		'gif'        => 'gif',
+	];
 
-	// First, analyze the URI and see if it ends with a valid type.
+	/**
+	 * First, analyze the URI and see if it ends with a valid type.
+	 *
+	 * Example: https://c0.wp.com/p/jetpack/11.3.1/css/jetpack.css
+	 * Will return "css"
+	 */
 	$path = wp_parse_url( $uri, PHP_URL_PATH );
 	if ( preg_match( '/\w+$/', $path, $matches ) ) {
 		$type = strtolower( $matches[0] );
-		if ( array_key_exists( $type, $types ) ) {
+		if ( in_array( $type, $types ) ) {
 			return $type;
 		}
 	}
 
-	// If the URI is not unique, then we'll ask for the content-type.
+	/**
+	 * If the URI is not unique, then we'll ask for the content-type.
+	 *
+	 * Send a HEAD request to the remote site to find out the content-type
+	 * which is used by the server. The HEAD request is very fast, because it
+	 * does not send any body-details, only the response headers.
+	 *
+	 * Example: "content-type: text/css; charset=utf-8" condenses to "text/css"
+	 * Will return "css"
+	 */
 	$resp         = wp_remote_head( $uri );
 	$content_type = wp_remote_retrieve_header( $resp, 'content-type' );
 	$content_type = explode( ';', $content_type );
 	$content_type = strtolower( trim( array_shift( $content_type ) ) );
 
-	if ( array_key_exists( $content_type, $content_types ) ) {
-		return $content_types[ $content_type ];
+	if ( $content_type ) {
+		if ( array_key_exists( $content_type, $content_types ) ) {
+			return $content_types[ $content_type ];
+		}
+
+		/**
+		 * No exact match, inspect only second part of the content-type.
+		 *
+		 * Now we'll split the content-type into two parts and investigate the
+		 * second part.
+		 *
+		 * Some subtypes exist in multiple types, like "text/javascript" and
+		 * "application/javascript".
+		 *
+		 * Example "application/javascript" is reduced to "javascript"
+		 * Will return "js"
+		 */
+		$sub_type = explode( '/', $content_type );
+		$sub_type = array_pop( $sub_type );
+
+		if ( array_key_exists( $sub_type, $sub_types ) ) {
+			return $sub_types[ $sub_type ];
+		}
 	}
 
 	// Unknown data type.
@@ -165,4 +213,3 @@ function get_filesystem() {
 
 	return $gdpr_cache_fs;
 }
-
