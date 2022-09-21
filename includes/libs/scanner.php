@@ -150,10 +150,8 @@ function parse_cache_contents( $type, $path ) {
 	$parse_dependency = function ( array $matches ) {
 		$uri = trim( $matches[2], '"\'' );
 
-		$type = get_url_type( $uri );
-
 		// Try to cache the external dependency.
-		$local_uri = swap_to_local_asset( $uri, $type );
+		$local_uri = swap_to_local_asset( $uri );
 
 		if ( $local_uri ) {
 			return $matches[1] . $local_uri . $matches[3];
