@@ -37,3 +37,23 @@ const GDPR_CACHE_QUEUE = 'gdpr_queue';
  * @var string
  */
 const GDPR_CACHE_WORKER_LOCK = 'gdpr_lock';
+
+if ( ! defined( 'GDPR_CACHE_DEFAULT_UA' ) ) {
+	/**
+	 * Defines the default user-agent that is sent to remote servers when
+	 * downloading a file to the local cache.
+	 *
+	 * Set this to false or an empty string to not include a default
+	 * user-agent with remote requests.
+	 *
+	 * Effect: The default UA below will instruct Google Fonts to use WOFF2
+	 * files. If you need to support IE, define an empty UA, which results
+	 * in TTF fonts being used.
+	 *
+	 * @see https://developers.google.com/fonts/docs/technical_considerations
+	 *
+	 * @since 1.0.1
+	 * @var string
+	 */
+	define( 'GDPR_CACHE_DEFAULT_UA', 'Mozilla/5.0 AppleWebKit/537 Chrome/105' );
+}

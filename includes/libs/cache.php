@@ -239,19 +239,9 @@ function cache_file_locally( $url ) {
 	$type    = get_url_type( $url );
 	$timeout = 300;
 
-	$headers = [];
+	// Get HTTP request headers for requesting the remote file.
+	$headers = get_remote_request_headers( $url, $type );
 
-	/**
-	 * Some assets return different content based on user-agent, so this
-	 * filter allows us to inject those details.
-	 */
-	// $headers = apply_filters(
-	//     'gdpr_cache_download_asset_headers',
-	//     $headers,
-	//     $url
-	// );
-	//
-	// $key        = md5( json_encode( $headers ) );
 
 	$domain     = wp_parse_url( $url, PHP_URL_HOST );
 	$parts      = [ $domain, md5( $url ), $type ];
@@ -296,4 +286,41 @@ function cache_file_locally( $url ) {
 	parse_cache_contents( $type, $cache_path );
 
 	return set_local_item( $url, $filename, $expires );
+}
+
+/**
+ * Returns an array with HTTP headers that should be used to request the
+ * specified asset from the remote server.
+ *
+ * @since 1.0.1
+ *
+ * @param string $url  The external URL that will be requested.
+ * @param string $type File-type extension of the remote file.
+ *
+ * @return string[] List of headers that are passed to `wp_remote_get()`.
+ */
+function get_remote_request_headers( $url, $type ) {
+	$headers = [];
+
+	// Insert the default user agent, if it's not empty.
+	if ( GDPR_CACHE_DEFAULT_UA ) {
+		$headers['User-agent'] = GDPR_CACHE_DEFAULT_UA;
+	}
+
+	/**
+	 * Some assets return different content based on user-agent, so this
+	 * filter allows us to inject those details.
+	 *
+	 * @since 1.0.1
+	 *
+	 * @param array  $headers The request headers.
+	 * @param string $url     The URL that's requested.
+	 * @param string $type    File type extension of the requested file.
+	 */
+	return (array) apply_filters(
+		'gdpr_cache_remote_request_headers',
+		$headers,
+		$url,
+		$type
+	);
 }
