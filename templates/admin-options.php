@@ -87,16 +87,15 @@ $action_purge   = wp_nonce_url(
 	<h1><?php esc_html_e( 'GDPR Cache Options', 'gdpr-cache' ); ?></h1>
 
 	<p>
-		<?php esc_html_e( 'Overview and manage your locally cached assets', 'gdpr-cache' ); ?>
+		<?php esc_html_e( 'View and manage your locally cached assets', 'gdpr-cache' ); ?>
 	</p>
 
-	<form method="post">
 	<h2><?php esc_html_e( 'Cache Control', 'gdpr-cache' ); ?></h2>
 	<p>
-			<?php esc_html_e( 'Invalidating the cache will expire all cached files. The plugin will start to download the latest version of all files on the next request. While the cache is regenerated, the expired files are served.', 'gdpr-cache' ); ?>
+		<?php esc_html_e( 'Refreshing the cache will start to download all external files in the background. While the cache is regenerated, the expired files are served.', 'gdpr-cache' ); ?>
 	</p>
 	<p>
-			<?php esc_html_e( 'To complete delete the entire cache, you need to disable the plugin.', 'gdpr-cache' ); ?>
+		<?php esc_html_e( 'Purging the cache will instantly delete all cached files, and begin to build a new cache. Until the initialization is finished, assets are loaded from the external sites.', 'gdpr-cache' ); ?>
 	</p>
 	<div class="gdpr-cache-reset">
 		<p class="submit">
