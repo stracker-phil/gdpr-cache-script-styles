@@ -1,4 +1,4 @@
-# GDPR Asset Cache
+# GDPR Cache Scripts & Styles
 
 Free WordPress plugin that greatly enhances privacy of your website by embedding external scripts and styles.
 
@@ -13,11 +13,11 @@ Free WordPress plugin that greatly enhances privacy of your website by embedding
 2. Visit your **wp-admin > Plugins > Add New** page
 3. Hit the **Upload Plugin** button at the top of the page
 4. Upload the zip file
-5. Activate the plugin "GDPR Asset Cache
+5. Activate the plugin "GDPR Cache Scripts & Styles"
 
 Or: 
 
-Install via your WordPress > Plugins page. Search for the plugin "GDPR Asset Cache", or download it from https://wordpress.org/plugins/gdpr-cache-scripts-styles/
+Install via your WordPress > Plugins page. Search for the plugin "GDPR Cache Scripts & Styles", or download it from https://wordpress.org/plugins/gdpr-cache-scripts-styles/
 
 ## Usage
 
@@ -45,7 +45,7 @@ Heads-up: For technical reasons, we cannot scan the contents of JS files for suc
 
 This plugin does not add any "output buffering" but scans the URLs which are enqueued via recommended WordPress functions.
 
-As a result, GDPR Asset Cache has practically no performance impact on your response time, no matter how big your website is.   
+As a result, GDPR Cache Scripts & Styles has practically no performance impact on your response time, no matter how big your website is.   
 
 ### Background worker
 

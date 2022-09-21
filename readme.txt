@@ -21,7 +21,7 @@ This plugin does not provide any guarantees of making your website GDPR-complian
 
 ## How it works
 
-> **Short**: External files are downloaded to your WordPress installation (into the uploads folder) and then served from there.
+> **Short**: External files are downloaded to your WordPress installation (into the uploads-folder) and then served from there.
 
 **More details**:
 
@@ -35,7 +35,7 @@ Heads-up: For technical reasons, we cannot scan the contents of JS files for suc
 
 This plugin does not add any "output buffering" but scans the URLs which are enqueued via recommended WordPress functions.
 
-As a result, GDPR Asset Cache has practically no performance impact on your response time, no matter how big your website is.
+As a result, *GDPR Cache Scripts & Styles* has practically no performance impact on your response time, no matter how big your website is.
 
 ## Background worker
 
@@ -82,7 +82,7 @@ Common reasons are:
 * Some scripts (like Google Maps) can dynamically load Google Fonts or other external resources. This cannot be prevented by this plugin.
 * A browser plugin loads external assets on every request. Test the page in an Incognito/Private window
 
-Also, some themes or performance plugins can embed the external resources in a way that our plugin cannot detect. If this is the case for you, please let us know. We might be able to adjust this plugin, or provide you with instructions on how to configure the plugin/theme to be compatible with GDPR Asset Cache.
+Also, some themes or performance plugins can embed the external resources in a way that our plugin cannot detect. If this is the case for you, please let us know. We might be able to adjust this plugin, or provide you with instructions on how to configure the plugin/theme to be compatible with *GDPR Cache Scripts & Styles*.
 
 == Screenshots ==
 
