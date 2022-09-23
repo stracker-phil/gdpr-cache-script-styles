@@ -47,7 +47,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @var string
  */
-const GDPR_CACHE_VERSION = '1.0.3';
+const GDPR_CACHE_VERSION = '1.0.4';
 
 /**
  * Absolute path and file name of the main plugin file.
