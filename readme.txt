@@ -120,11 +120,17 @@ Also, some themes or performance plugins can embed the external resources in a w
 
 == Changelog ==
 
+= 1.0.4 =
+
+* New: A staleness check locates cached files that are not used for more then 30 days and deletes them
+* Improve: Asset list on options page displays staleness information
+* Improve: Better detection of external URLs
+
 = 1.0.3 =
 
-* New: Display file-type of cached assets in the plugin's option page.
-* New: Also in the plugin's option page - allow sorting of the "Cached Assets" list.
-* Improve: Flush the plugins internal cache when opening the options page.
+* New: Display file-type of cached assets in the plugin's option page
+* New: Also in the plugin's option page - allow sorting of the "Cached Assets" list
+* Improve: Flush the plugins internal cache when opening the options page
 
 = 1.0.2 =
 
@@ -142,4 +148,3 @@ Also, some themes or performance plugins can embed the external resources in a w
 = 1.0.0 =
 
 * Initial Release
-
