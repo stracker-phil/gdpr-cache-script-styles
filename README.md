@@ -25,41 +25,43 @@ One-click solution to automatically serve external assets from your local websit
 
 No configuration and no coding required - activate the plugin and forget about it.
 
-### Disclaimer
+### 1. Disclaimer
 
 This plugin does not provide any guarantees of making your website GDPR-compliant. As a website operator, you are always responsible to verify if this plugin works for you and collect consent for external scripts before loading them in the visitor's browser.
 
-### How it works
+### 2. How it works
 
-> **Short**: External files are downloaded to your WordPress installation (into the uploads-folder) and then served from there.
+**Short**: External files are downloaded to your WordPress installation (into the uploads-folder) and then served from there.
 
 **More details**:
 
-The plugin scans every URL that is enqueued via `wp_enqueue_script()` and `wp_enqueue_style()`. When detecting external URL, that file is saved to your uploads-folder and served from there.
+The plugin scans every URL that is enqueued via `wp_enqueue_script()` and `wp_enqueue_style()`. When detecting an external URL, that file is saved to your uploads-folder and served from there.
 
 It also scans the contents of CSS files for external dependencies and also saves those files to your uploads-folder!
 
 Heads-up: For technical reasons, we cannot scan the contents of JS files for such dependencies - JS files can always inject external assets
 
-#### No Output Buffer
+**No Output Buffer**:
 
 This plugin does not add any "output buffering" but scans the URLs which are enqueued via recommended WordPress functions.
 
 As a result, *GDPR Cache Scripts & Styles* has practically no performance impact on your response time, no matter how big your website is.
 
-#### Background worker
+**Background worker**:
 
-To speed up your websites loading time, all assets are downloaded in a background process: When a new asset is detected, or a cached file expires, a worker-task is enqueued.
+To speed up your website's loading time, all assets are downloaded in a background process: When a new asset is detected, or a cached file expires, a worker-task is enqueued.
 
 The queue is then processed in an asynchronous process; while the queue is processed, your website could still serve the external assets for a while - usually the queue is processed within one or two minutes.
 
-#### Options page
+### 3. Options Page
 
-You'll find the plugin options page at Tools > GDPR Cache. On that page you can invalidate all assets and see a list of the entire cache.
+You'll find the plugin options page at "Tools > GDPR Cache". On that page you can refresh and purge your website's cache.
 
-When you deactivate the plugin, the entire cache is purged (all files are deleted and relevant DB values are reset)
+Here you can also review a full list of all files that are locally cached, and review the expiration date of each file - when a file expires, the plugin downloads a new version of it from the remote server.
 
-### Tested with
+Additionally, when you **deactivate** the plugin, the entire cache is purged (all files are deleted and relevant DB values are reset)
+
+### 4. Tested with
 
 We've tested this plugin with the following themes and plugins:
 
