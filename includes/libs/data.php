@@ -19,6 +19,27 @@ add_action( 'shutdown', __NAMESPACE__ . '\persist_last_used' );
 
 
 /**
+ * Removes all plugin data from the DB.
+ *
+ * @since 1.0.4
+ * @return void
+ */
+function clear_data_entries() {
+	// Flush all caches.
+	wp_cache_delete( 'data', 'gdpr-cache' );
+	wp_cache_delete( 'usage', 'gdpr-cache' );
+	wp_cache_delete( 'dependencies', 'gdpr-cache' );
+
+	// Delete all plugin details from the DB.
+	delete_option( GDPR_CACHE_QUEUE );
+	delete_option( GDPR_CACHE_WORKER_LOCK );
+	delete_option( GDPR_CACHE_OPTION );
+	delete_option( GDPR_CACHE_DEPENDENCY );
+	delete_option( GDPR_CACHE_USAGE );
+}
+
+
+/**
  * Returns an array of all cached external assets.
  *
  * @since 1.0.0

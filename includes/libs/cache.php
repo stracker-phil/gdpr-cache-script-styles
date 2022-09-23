@@ -77,11 +77,7 @@ function flush_cache( $invalidate = false ) {
 
 		set_cached_data( $data );
 	} else {
-		// Flush the cache and empty DB item.
-		set_cached_data( [] );
-
-		// Also delete the background worker queue.
-		set_worker_queue( [] );
+		clear_data_entries();
 
 		// Get a list of all files inside the cache-folder.
 		$cache_dir = build_cache_file_path( '' );
