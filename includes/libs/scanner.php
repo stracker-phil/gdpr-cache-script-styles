@@ -85,13 +85,17 @@ function parse_custom_css( $css ) {
  *
  * @param string $url The URL to cache locally.
  *
- * @return string
+ * @return string The local URL of the asset, on success. Returns the unmodified
+ *     input parameter on failure.
  */
 function swap_to_local_asset( $url ) {
 	// When an invalid URL is provided, bail.
 	if ( ! $url || false === strpos( $url, '//' ) || ! is_external_url( $url ) ) {
 		return $url;
 	}
+
+	// Store a flag to mark this file as "used".
+	set_last_used( $url );
 
 	/**
 	 * Filter to allow short-circuiting the asset-swapping logic.
