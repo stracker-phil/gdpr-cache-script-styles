@@ -24,6 +24,20 @@ $status_labels = [
 	'enqueued' => __( 'Enqueued', 'gdpr-cache' ),
 ];
 
+$stale_labels = [
+	'none'   => '',
+	'low'    => _x( 'Low', 'Staleness', 'gdpr-cache' ),
+	'medium' => _x( 'Medium', 'Staleness', 'gdpr-cache' ),
+	'high'   => _x( 'High', 'Staleness', 'gdpr-cache' ),
+];
+
+$stale_tips = [
+	'none'   => '',
+	'low'    => _x( 'This file was recently used', 'Staleness', 'gdpr-cache' ),
+	'medium' => _x( 'This file was not used for a while hours', 'Staleness', 'gdpr-cache' ),
+	'high'   => _x( 'This file becomes stale and might be deleted soon', 'Staleness', 'gdpr-cache' ),
+];
+
 $items  = [];
 $counts = [
 	'all'      => 0,
@@ -33,14 +47,20 @@ $counts = [
 	'enqueued' => 0,
 ];
 
+$stale_low    = ceil( GDPR_CACHE_STALE_HOURS / 20 );
+$stale_medium = ceil( GDPR_CACHE_STALE_HOURS / 3 );
+
 foreach ( $assets as $url => $item ) {
-	$status_label = '';
-	$local_url    = '';
-	$item_status  = get_asset_status( $url );
-	$item_type    = isset( $item['type'] ) ? $item['type'] : '';
+	$local_url   = '';
+	$item_status = get_asset_status( $url );
+	$item_type   = isset( $item['type'] ) ? $item['type'] : '';
+	$staleness   = get_asset_staleness( $url );
 
 	if ( ! $item_type ) {
 		$item_type = get_url_type( $url );
+	}
+	if ( ! $item_type || 'tmp' === $item_type ) {
+		$item_type = '?';
 	}
 
 	if ( 'valid' !== $item_status ) {
@@ -49,23 +69,32 @@ foreach ( $assets as $url => $item ) {
 	if ( 'missing' === $item_status && in_array( $url, $queue ) ) {
 		$item_status = 'enqueued';
 	}
-	if ( array_key_exists( $item_status, $status_labels ) ) {
-		$status_label = $status_labels[ $item_status ];
-	}
 	if ( in_array( $item_status, [ 'valid', 'expired' ] ) ) {
 		$local_url = build_cache_file_url( $item['file'] );
 	}
+
+	if ( $staleness < 0 ) {
+		$stale_level = 'none';
+	} elseif ( $staleness <= $stale_low ) {
+		$stale_level = 'low';
+	} elseif ( $staleness <= $stale_medium ) {
+		$stale_level = 'medium';
+	} else {
+		$stale_level = 'high';
+	}
+
 	$counts['all'] ++;
 	$counts[ $item_status ] ++;
 
 	$items[] = [
-		'url'          => $url,
-		'status'       => $item_status,
-		'status_label' => $status_label,
-		'type'         => $item_type,
-		'local_url'    => $local_url,
-		'created'      => gmdate( 'Y-m-d H:i', $item['created'] ),
-		'expires'      => gmdate( 'Y-m-d H:i', $item['expires'] ),
+		'url'         => $url,
+		'status'      => $item_status,
+		'type'        => $item_type,
+		'local_url'   => $local_url,
+		'stale_value' => $staleness,
+		'stale_level' => $stale_level,
+		'created'     => gmdate( 'Y-m-d H:i', $item['created'] ),
+		'expires'     => gmdate( 'Y-m-d H:i', $item['expires'] ),
 	];
 }
 
@@ -74,19 +103,24 @@ foreach ( $queue as $url ) {
 		continue;
 	}
 
-	$item_type   = get_url_type( $url );
+	$item_type = get_url_type( $url );
+	if ( 'tmp' === $item_type ) {
+		$item_type = '?';
+	}
+
 	$item_status = 'enqueued';
 	$counts['all'] ++;
 	$counts[ $item_status ] ++;
 
 	$items[] = [
-		'url'          => $url,
-		'status'       => $item_status,
-		'status_label' => $status_labels[ $item_status ],
-		'type'         => $item_type,
-		'local_url'    => '',
-		'created'      => '',
-		'expires'      => '',
+		'url'         => $url,
+		'status'      => $item_status,
+		'type'        => $item_type,
+		'local_url'   => '',
+		'stale_value' => - 1,
+		'stale_level' => 'none',
+		'created'     => '',
+		'expires'     => '',
 	];
 }
 
@@ -159,9 +193,11 @@ $action_purge   = wp_nonce_url(
 				<th class="asset-status">
 					<?php esc_html_e( 'Status', 'gdpr-cache' ); ?>
 				</th>
+				<th class="asset-stale sorttable_numeric">
+					<?php esc_html_e( 'Stale', 'gdpr-cache' ); ?>
+				</th>
 				<th class="asset-created">
 					<?php esc_html_e( 'Created', 'gdpr-cache' ); ?>
-
 				</th>
 				<th class="asset-expires">
 					<?php esc_html_e( 'Expires', 'gdpr-cache' ); ?>
@@ -169,7 +205,24 @@ $action_purge   = wp_nonce_url(
 			</tr>
 			</thead>
 			<?php foreach ( $items as $item ): ?>
-				<tr class="status-<?php echo esc_attr( $item['status'] ); ?>">
+				<?php
+				$classes   = [];
+				$classes[] = "status-{$item['status']}";
+				$classes[] = "stale-{$item['stale_level']}";
+
+				$status_label = $status_labels[ $item['status'] ];
+				$stale_label  = $stale_labels[ $item['stale_level'] ];
+
+				$stale_tip = sprintf(
+					'%s (%s)',
+					$stale_tips[ $item['stale_level'] ],
+					sprintf(
+						__( 'used %d hours ago', 'gdpr-cache' ),
+						$item['stale_value']
+					)
+				);
+				?>
+				<tr class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>">
 					<td class="asset-url"><?php echo esc_html( $item['url'] ); ?></td>
 					<td class="asset-type"><?php echo esc_html( $item['type'] ); ?></td>
 					<td class="asset-status">
@@ -179,14 +232,26 @@ $action_purge   = wp_nonce_url(
 									title="<?php esc_attr_e( 'Open the cached file in a new window', 'gdpr-cache' ); ?>"
 									target="_blank"
 							>
-								<?php echo esc_html( $item['status_label'] ); ?>
+								<?php echo esc_html( $status_label ); ?>
 							</a>
 						<?php else: ?>
-							<?php echo esc_html( $item['status_label'] ); ?>
+							<?php echo esc_html( $status_label ); ?>
 						<?php endif; ?>
 					</td>
-					<td class="asset-created"><?php echo esc_html( $item['created'] ); ?></td>
-					<td class="asset-expires"><?php echo esc_html( $item['expires'] ); ?></td>
+					<td class="asset-stale" title="<?php echo esc_attr( $stale_tip ); ?>">
+						<span class="value">
+							<?php echo esc_html( $item['stale_value'] ); ?>
+						</span>
+						<?php echo esc_html( $stale_label ); ?>
+					</td>
+					<td class="asset-created">
+						<span class="date"><?php echo esc_html( substr( $item['created'], 0, 10 ) ); ?></span>
+						<span class="time"><?php echo esc_html( substr( $item['created'], 11 ) ); ?></span>
+					</td>
+					<td class="asset-expires">
+						<span class="date"><?php echo esc_html( substr( $item['expires'], 0, 10 ) ); ?></span>
+						<span class="time"><?php echo esc_html( substr( $item['expires'], 11 ) ); ?></span>
+					</td>
 				</tr>
 			<?php endforeach; ?>
 		</table>

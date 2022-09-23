@@ -20,7 +20,7 @@
 	text-align: center;
 }
 
-#gdpr-cache .status-valid .asset-status a {
+#gdpr-cache .asset-status a {
 	text-decoration: underline;
 }
 
@@ -60,12 +60,42 @@
 	color: #38006b;
 }
 
+#gdpr-cache .stale-low .asset-stale {
+	color: #388e3c;
+}
+
+#gdpr-cache .stale-medium .asset-stale {
+	background: #fffde730;
+	color: #c17900;
+}
+
+#gdpr-cache .stale-high .asset-stale {
+	background: #fbe9e760;
+	color: #e64a19;
+}
+
 #gdpr-cache table.sortable thead th {
 	cursor: pointer;
 }
 
+#gdpr-cache table .asset-url {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
 #gdpr-cache table .asset-type {
 	width: 50px;
+}
+
+#gdpr-cache table .asset-stale .value {
+	visibility: hidden;
+	display: none;
+}
+
+#gdpr-cache table .asset-stale {
+	width: 50px;
+	text-align: center;
 }
 
 #gdpr-cache table .asset-status {
@@ -82,4 +112,10 @@
 
 #gdpr-cache tbody .asset-type {
 	text-transform: uppercase;
+}
+
+#gdpr-cache tbody .time {
+	padding-left: 4px;
+	font-size: 0.85em;
+	opacity: 0.8;
 }
