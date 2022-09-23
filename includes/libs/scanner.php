@@ -68,7 +68,13 @@ function scan_external_assets( $source ) {
  * @return string Parsed custom CSS.
  */
 function parse_custom_css( $css ) {
-	return replace_urls_in_css( $css );
+	$parsed = replace_urls_in_css( $css );
+
+	if ( $parsed['changed']) {
+		set_dependencies( 'wp_custom_css', $parsed['urls'] );
+	}
+
+	return $parsed['content'];
 }
 
 
@@ -142,10 +148,11 @@ function swap_to_local_asset( $url ) {
  *
  * @param string $type The file type that's parsed (css|js|ttf|...)
  * @param string $path Full path to the local cache file.
+ * @param string $url  The remote URL from where the cache file was loaded.
  *
  * @return void
  */
-function parse_cache_contents( $type, $path ) {
+function parse_cache_contents( $type, $path, $url ) {
 	$parser = null;
 
 	if ( 'css' === $type ) {
@@ -161,8 +168,10 @@ function parse_cache_contents( $type, $path ) {
 		$parsed = $parser( $orig );
 
 		// In case an asset was downloaded and cached, update the local file.
-		if ( $orig !== $parsed ) {
-			$fs->put_contents( $path, $parsed );
+		if ( $parsed['changed'] ) {
+			set_dependencies( $url, $parsed['urls'] );
+
+			$fs->put_contents( $path, $parsed['content'] );
 		}
 	}
 }
@@ -171,13 +180,20 @@ function parse_cache_contents( $type, $path ) {
 /**
  * Replaces external URLs inside the given CSS string with local URLs.
  *
+ * Returns an array with parser details:
+ *  - changed ... (bool) whether the content has changed.
+ *  - urls ... (array) list of external URLs and their local representation.
+ *  - content ... (string) the parsed contents (with URLs replaced).
+ *
  * @since 1.0.2
  *
  * @param string $css The CSS string.
  *
- * @return string CSS string with URLs replaced.
+ * @return array Parser details.
  */
 function replace_urls_in_css( $css ) {
+	$urls = [];
+
 	/**
 	 * The $matches array has 4 elements:
 	 * [0] the full match, with url-prefix, the URI and the closing bracket
@@ -189,23 +205,31 @@ function replace_urls_in_css( $css ) {
 	 *
 	 * @return string The full match with a different URI
 	 */
-	$parse_dependency = function ( array $matches ) {
+	$parse_dependency = function ( array $matches ) use ( &$urls ) {
 		$uri = trim( $matches[2], '"\'' );
 
 		// Try to cache the external dependency.
 		$local_uri = swap_to_local_asset( $uri );
 
-		if ( $local_uri ) {
+		if ( $local_uri && $local_uri !== $uri ) {
+			$urls[ $uri ] = $local_uri;
+
 			return $matches[1] . $local_uri . $matches[3];
 		} else {
-			return $matches[1] . $uri . $matches[3];
+			return $matches[0];
 		}
 	};
 
-	return preg_replace_callback(
+	$css = preg_replace_callback(
 		'/([:\s]url\s*\()("[^"]*?"|\'[^\']*?\'|[^"\'][^)]*?)(\))/',
 		$parse_dependency,
 		$css,
 		- 1
 	);
+
+	return [
+		'changed' => count( $urls ) > 0,
+		'urls'    => $urls,
+		'content' => $css,
+	];
 }

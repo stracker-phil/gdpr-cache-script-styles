@@ -230,7 +230,7 @@ function cache_file_locally( $url ) {
 
 	// Scan the contents of the cached file to embed assets that are loaded
 	// within that file.
-	parse_cache_contents( $type, $cache_path );
+	parse_cache_contents( $type, $cache_path, $url );
 
 	return set_local_item( $url, $filename, $expires );
 }
