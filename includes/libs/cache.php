@@ -216,6 +216,7 @@ function set_local_item( $url, $file, $expiration = 0 ) {
 		'created' => time(),
 		'expires' => time() + $expiration,
 		'file'    => $file,
+		'type'    => get_url_type( $url ),
 	];
 
 	set_cached_data( $cache );

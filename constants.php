@@ -18,6 +18,14 @@ defined( 'ABSPATH' ) || exit;
 define( 'GDPR_CACHE_PATH', plugin_dir_path( GDPR_CACHE_PLUGIN_FILE ) );
 
 /**
+ * Absolute URL to the current plugins base folder, with trailing slash. Used
+ * to enqueue scripts that are shipped with this plugin.
+ *
+ * @var string
+ */
+define( 'GDPR_CACHE_PLUGIN_URL', plugin_dir_url( GDPR_CACHE_PLUGIN_FILE ) );
+
+/**
  * Option name that holds a list of all cached assets.
  *
  * @var string
@@ -50,7 +58,7 @@ if ( ! defined( 'GDPR_CACHE_DEFAULT_UA' ) ) {
 	 * files. If you need to support IE, define an empty UA, which results
 	 * in TTF fonts being used.
 	 *
-	 * @see https://developers.google.com/fonts/docs/technical_considerations
+	 * @see   https://developers.google.com/fonts/docs/technical_considerations
 	 *
 	 * @since 1.0.1
 	 * @var string

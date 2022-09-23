@@ -17,12 +17,6 @@ config.dev.bash
 wp-config.php
 *.log
 
-# Do not track generated assets.
-/scripts/
-/styles/
-/shared/divimode/scripts/
-/shared/divimode/styles/
-
 # Track vendor scripts in the shared library
 !sources/scripts/vendor/
 config.local.bash

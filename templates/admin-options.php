@@ -10,6 +10,9 @@ namespace GdprCache;
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;
 
+wp_enqueue_script( 'gdpr-sortable', GDPR_CACHE_PLUGIN_URL . 'scripts/sortable.js' );
+wp_enqueue_style( 'gdpr-sortable', GDPR_CACHE_PLUGIN_URL . 'styles/admin.css' );
+
 $assets = get_cached_data();
 $queue  = get_worker_queue();
 
@@ -32,7 +35,13 @@ $counts = [
 
 foreach ( $assets as $url => $item ) {
 	$status_label = '';
+	$local_url    = '';
 	$item_status  = get_asset_status( $url );
+	$item_type    = isset( $item['type'] ) ? $item['type'] : '';
+
+	if ( ! $item_type ) {
+		$item_type = get_url_type( $url );
+	}
 
 	if ( 'valid' !== $item_status ) {
 		enqueue_asset( $url );
@@ -43,6 +52,9 @@ foreach ( $assets as $url => $item ) {
 	if ( array_key_exists( $item_status, $status_labels ) ) {
 		$status_label = $status_labels[ $item_status ];
 	}
+	if ( in_array( $item_status, [ 'valid', 'expired' ] ) ) {
+		$local_url = build_cache_file_url( $item['file'] );
+	}
 	$counts['all'] ++;
 	$counts[ $item_status ] ++;
 
@@ -50,6 +62,8 @@ foreach ( $assets as $url => $item ) {
 		'url'          => $url,
 		'status'       => $item_status,
 		'status_label' => $status_label,
+		'type'         => $item_type,
+		'local_url'    => $local_url,
 		'created'      => gmdate( 'Y-m-d H:i', $item['created'] ),
 		'expires'      => gmdate( 'Y-m-d H:i', $item['expires'] ),
 	];
@@ -60,6 +74,7 @@ foreach ( $queue as $url ) {
 		continue;
 	}
 
+	$item_type   = get_url_type( $url );
 	$item_status = 'enqueued';
 	$counts['all'] ++;
 	$counts[ $item_status ] ++;
@@ -68,6 +83,8 @@ foreach ( $queue as $url ) {
 		'url'          => $url,
 		'status'       => $item_status,
 		'status_label' => $status_labels[ $item_status ],
+		'type'         => $item_type,
+		'local_url'    => '',
 		'created'      => '',
 		'expires'      => '',
 	];
@@ -83,7 +100,7 @@ $action_purge   = wp_nonce_url(
 );
 
 ?>
-<div class="wrap">
+<div class="wrap" id="gdpr-cache">
 	<h1><?php esc_html_e( 'GDPR Cache Options', 'gdpr-cache' ); ?></h1>
 
 	<p>
@@ -130,26 +147,43 @@ $action_purge   = wp_nonce_url(
 			<em><?php esc_html_e( 'No external assets found', 'gdpr-cache' ); ?></em>
 		</p>
 	<?php else : ?>
-		<table class="wp-list-table widefat fixed striped table-view-list">
+		<table class="wp-list-table widefat fixed striped table-view-list sortable">
 			<thead>
 			<tr>
-				<th class="asset-url"><?php esc_html_e( 'URL', 'gdpr-cache' ); ?></th>
-				<th
-						class="asset-status" style="width:100px"
-				><?php esc_html_e( 'Status', 'gdpr-cache' ); ?></th>
-				<th
-						class="asset-created" style="width:125px"
-				><?php esc_html_e( 'Created', 'gdpr-cache' ); ?></th>
-				<th
-						class="asset-expires" style="width:125px"
-				><?php esc_html_e( 'Expires', 'gdpr-cache' ); ?></th>
+				<th class="asset-url">
+					<?php esc_html_e( 'URL', 'gdpr-cache' ); ?>
+				</th>
+				<th class="asset-type">
+					<?php esc_html_e( 'Type', 'gdpr-cache' ); ?>
+				</th>
+				<th class="asset-status">
+					<?php esc_html_e( 'Status', 'gdpr-cache' ); ?>
+				</th>
+				<th class="asset-created">
+					<?php esc_html_e( 'Created', 'gdpr-cache' ); ?>
+
+				</th>
+				<th class="asset-expires">
+					<?php esc_html_e( 'Expires', 'gdpr-cache' ); ?>
+				</th>
 			</tr>
 			</thead>
 			<?php foreach ( $items as $item ): ?>
 				<tr class="status-<?php echo esc_attr( $item['status'] ); ?>">
 					<td class="asset-url"><?php echo esc_html( $item['url'] ); ?></td>
+					<td class="asset-type"><?php echo esc_html( $item['type'] ); ?></td>
 					<td class="asset-status">
-						<?php echo esc_html( $item['status_label'] ); ?>
+						<?php if ( $item['local_url'] ): ?>
+							<a
+									href="<?php echo esc_url( $item['local_url'] ); ?>"
+									title="<?php esc_attr_e( 'Open the cached file in a new window', 'gdpr-cache' ); ?>"
+									target="_blank"
+							>
+								<?php echo esc_html( $item['status_label'] ); ?>
+							</a>
+						<?php else: ?>
+							<?php echo esc_html( $item['status_label'] ); ?>
+						<?php endif; ?>
 					</td>
 					<td class="asset-created"><?php echo esc_html( $item['created'] ); ?></td>
 					<td class="asset-expires"><?php echo esc_html( $item['expires'] ); ?></td>
@@ -158,43 +192,3 @@ $action_purge   = wp_nonce_url(
 		</table>
 	<?php endif; ?>
 </div>
-
-<style>
-	.subsubsub {
-		margin-bottom: 12px
-	}
-
-	.subsubsub li + li:before {
-		content: '|';
-		padding: 0 2px;
-	}
-
-	.subsubsub .count-all .status {
-		font-weight: bold;
-	}
-
-	.widefat .asset-status {
-		vertical-align: middle;
-		text-align: center;
-	}
-
-	.status-valid .asset-status {
-		background: #c8e6c940;
-		color: #005005;
-	}
-
-	.status-expired .asset-status {
-		background: #ffecb340;
-		color: #c56000;
-	}
-
-	.status-missing .asset-status {
-		background: #ffccbc40;
-		color: #9f0000;
-	}
-
-	.status-enqueued .asset-status {
-		background: #e1bee740;
-		color: #38006b;
-	}
-</style>
