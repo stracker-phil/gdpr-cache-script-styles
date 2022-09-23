@@ -40,6 +40,25 @@ const GDPR_CACHE_OPTION = 'gdpr_cache';
 const GDPR_CACHE_QUEUE = 'gdpr_queue';
 
 /**
+ * Option name that stores a list of assets and their dependencies.
+ *
+ * This list is used in combination with GDPR_CACHE_USAGE to identify stale
+ * assets.
+ *
+ * @since 1.0.4
+ * @var string
+ */
+const GDPR_CACHE_DEPENDENCY = 'gdpr_dependency';
+
+/**
+ * Option name that stores the last-used time for each external asset.
+ *
+ * @since 1.0.4
+ * @var string
+ */
+const GDPR_CACHE_USAGE = 'gdpr_used';
+
+/**
  * Option name that holds the timestamp of the background worker start time.
  *
  * @var string
@@ -64,4 +83,17 @@ if ( ! defined( 'GDPR_CACHE_DEFAULT_UA' ) ) {
 	 * @var string
 	 */
 	define( 'GDPR_CACHE_DEFAULT_UA', 'Mozilla/5.0 AppleWebKit/537 Chrome/105' );
+}
+
+if ( ! defined( 'GDPR_CACHE_STALE_HOURS' ) ) {
+	/**
+	 * Defines the maximum age of a cached asset before it's considered to be
+	 * stale.
+	 *
+	 * An asset ages when it's not used, and is deleted once it becomes stale.
+	 *
+	 * @since 1.0.4
+	 * @var int
+	 */
+	define( 'GDPR_CACHE_STALE_HOURS', 30 * 24 );
 }

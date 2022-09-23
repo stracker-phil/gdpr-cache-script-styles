@@ -19,48 +19,6 @@ add_action( 'gdpr_cache_worker', __NAMESPACE__ . '\run_background_tasks' );
 
 
 /**
- * Returns a list of all enqueued tasks in the background-worker queue.
- *
- * @since 1.0.0
- * @return array
- */
-function get_worker_queue() {
-	$queue = get_option( GDPR_CACHE_QUEUE );
-
-	if ( ! is_array( $queue ) ) {
-		$queue = [];
-	}
-
-	return $queue;
-}
-
-
-/**
- * Updates the tasks in the background-worker queue.
- *
- * @since 1.0.0
- *
- * @param array $queue The new worker queue to process.
- *
- * @return void
- */
-function set_worker_queue( array $queue ) {
-	update_option( GDPR_CACHE_QUEUE, $queue );
-}
-
-
-/**
- * Tests, if the background worker has items.
- *
- * @since 1.0.0
- * @return bool True if the worker queue is not empty.
- */
-function has_worker_queue() {
-	return count( get_worker_queue() ) > 0;
-}
-
-
-/**
  * Spawns a background process to process the GDPR cache worker.
  *
  * @since 1.0.0

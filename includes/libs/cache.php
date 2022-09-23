@@ -15,64 +15,6 @@ defined( 'ABSPATH' ) || exit;
 
 
 /**
- * Returns an array of all cached external assets.
- *
- * @since 1.0.0
- * @return array List of external assets
- */
-function get_cached_data() {
-	$data = wp_cache_get( 'data', 'gdpr-cache' );
-
-	if ( ! is_array( $data ) ) {
-		$data = get_option( GDPR_CACHE_OPTION );
-
-		if ( ! is_array( $data ) ) {
-			$data = [];
-			set_cached_data( $data );
-			$data = wp_cache_get( 'data', 'gdpr-cache' );
-		}
-
-		// Cache data to speed up next function call.
-		wp_cache_set( 'data', $data, 'gdpr-cache' );
-	}
-
-	/**
-	 * Filters the list of cached assets after it's read from the DB.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param array $data The cache data that was read from the DB.
-	 */
-	return (array) apply_filters( 'gdpr_cache_get_data', $data );
-}
-
-
-/**
- * Sets the list of cached external assets.
- *
- * @since 1.0.0
- *
- * @param array $data List of external assets
- */
-function set_cached_data( array $data ) {
-	/**
-	 * Filters the cache data before it's written to the DB.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param array $data The cache data that's written to the DB.
-	 */
-	$data = (array) apply_filters( 'gdpr_cache_set_data', $data );
-
-	// Write data to the cache.
-	wp_cache_set( 'data', $data, 'gdpr-cache' );
-
-	// Persist data to the DB.
-	update_option( GDPR_CACHE_OPTION, $data );
-}
-
-
-/**
  * Checks the given asset items status.
  *
  * @since 1.0.0
