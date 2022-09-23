@@ -31,7 +31,7 @@ This plugin does not provide any guarantees of making your website GDPR-complian
 
 ### How it works
 
-> **Short**: External files are downloaded to your WordPress installation (into the uploads folder) and then served from there.
+> **Short**: External files are downloaded to your WordPress installation (into the uploads-folder) and then served from there.
 
 **More details**:
 
@@ -41,20 +41,29 @@ It also scans the contents of CSS files for external dependencies and also saves
 
 Heads-up: For technical reasons, we cannot scan the contents of JS files for such dependencies - JS files can always inject external assets
 
-### No Output Buffer
+#### No Output Buffer
 
 This plugin does not add any "output buffering" but scans the URLs which are enqueued via recommended WordPress functions.
 
-As a result, GDPR Cache Scripts & Styles has practically no performance impact on your response time, no matter how big your website is.   
+As a result, *GDPR Cache Scripts & Styles* has practically no performance impact on your response time, no matter how big your website is.
 
-### Background worker
+#### Background worker
 
 To speed up your websites loading time, all assets are downloaded in a background process: When a new asset is detected, or a cached file expires, a worker-task is enqueued.
 
 The queue is then processed in an asynchronous process; while the queue is processed, your website could still serve the external assets for a while - usually the queue is processed within one or two minutes.
 
-### Options page
+#### Options page
 
 You'll find the plugin options page at Tools > GDPR Cache. On that page you can invalidate all assets and see a list of the entire cache.
 
 When you deactivate the plugin, the entire cache is purged (all files are deleted and relevant DB values are reset)
+
+### Tested with
+
+We've tested this plugin with the following themes and plugins, and
+
+* Default WordPress **Block Editor** (embedding Google Fonts via Customizers "Additional CSS")
+* [**Divi**](https://divimode.com/go/divi/) (see "Configuration for Divi" below)
+* [**Elementor**](https://wordpress.org/plugins/elementor/)
+* [Fonts Plugin | Google Fonts Typography](https://wordpress.org/plugins/olympus-google-fonts/)
