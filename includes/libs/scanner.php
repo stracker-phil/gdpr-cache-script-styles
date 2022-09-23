@@ -83,7 +83,7 @@ function parse_custom_css( $css ) {
  */
 function swap_to_local_asset( $url ) {
 	// When an invalid URL is provided, bail.
-	if ( ! $url || false === strpos( $url, '//' ) ) {
+	if ( ! $url || false === strpos( $url, '//' ) || ! is_external_url( $url ) ) {
 		return $url;
 	}
 

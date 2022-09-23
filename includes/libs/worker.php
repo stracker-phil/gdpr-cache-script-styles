@@ -187,6 +187,9 @@ function run_background_tasks() {
 		if ( ! is_string( $item_url ) || ! $item_url ) {
 			continue;
 		}
+		if ( ! is_external_url( $item_url ) ) {
+			continue;
+		}
 
 		cache_file_locally( $item_url );
 
