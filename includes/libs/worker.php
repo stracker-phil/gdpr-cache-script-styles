@@ -97,11 +97,8 @@ function enqueue_asset( $url ) {
 		// Enqueue the asset for caching.
 		$queue = get_worker_queue();
 
-		foreach ( $queue as $item_url ) {
-			// Bail, if the URL is already enqueued.
-			if ( $url === $item_url ) {
-				return false;
-			}
+		if ( in_array( $url, $queue, true ) ) {
+			return false;
 		}
 
 		$queue[] = $url;
