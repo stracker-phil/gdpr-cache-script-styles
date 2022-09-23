@@ -3,7 +3,7 @@ Tags: gdpr, ccpa, privacy, asset cache, script cache, style cache, embed google 
 Requires at least: 5.8
 Tested up to: 6.0.2
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPL v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.txt
 
@@ -76,6 +76,14 @@ We tested this plugin on numerous websites with different themes, and it was abl
 = Does this eliminate all external scripts? =
 Unfortunately, no. Some scripts (such as Google Maps scripts) will load external assets that cannot be detected or cached by this plugin.
 
+= Configuration for Divi =
+
+If you're using the Divi Theme, you need to **disable** the Theme Option "Improve Google Fonts Loading".
+
+You can find that option in wp-admin > Divi > Theme Options > General > Performance
+
+When this option is enabled, this plugin cannot detect the Google Fonts, and your website will make some external requests to load those font-files.
+
 = I still see some requests to Google's Servers =
 Common reasons are:
 
@@ -91,6 +99,10 @@ Also, some themes or performance plugins can embed the external resources in a w
 3. The options-page displays a list of all cached files and gives the option to invalidate all files.
 
 == Changelog ==
+
+= 1.0.2 =
+
+* New: Replace external URLs found in Additional CSS (via Customizer)
 
 = 1.0.1 =
 

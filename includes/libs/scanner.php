@@ -16,6 +16,7 @@ defined( 'ABSPATH' ) || exit;
 
 add_filter( 'script_loader_src', __NAMESPACE__ . '\scan_external_assets' );
 add_filter( 'style_loader_src', __NAMESPACE__ . '\scan_external_assets' );
+add_filter( 'wp_get_custom_css', __NAMESPACE__ . '\parse_custom_css' );
 
 // ----------------------------------------------------------------------------
 
@@ -53,6 +54,21 @@ function scan_external_assets( $source ) {
 	}
 
 	return $source;
+}
+
+
+/**
+ * Parses the CSS contents of the themes "Custom CSS" field; this is the CSS
+ * that's added via the Customizer.
+ *
+ * @since 1.0.2
+ *
+ * @param string $css The custom CSS string.
+ *
+ * @return string Parsed custom CSS.
+ */
+function parse_custom_css( $css ) {
+	return replace_urls_in_css( $css );
 }
 
 
@@ -130,12 +146,38 @@ function swap_to_local_asset( $url ) {
  * @return void
  */
 function parse_cache_contents( $type, $path ) {
-	$fs = get_filesystem();
+	$parser = null;
 
-	if ( 'css' !== $type ) {
-		return;
+	if ( 'css' === $type ) {
+		$parser = __NAMESPACE__ . '\replace_urls_in_css';
 	}
 
+	if ( $parser ) {
+		$fs = get_filesystem();
+
+		// Read the file contents
+		$orig = $fs->get_contents( $path );
+
+		$parsed = $parser( $orig );
+
+		// In case an asset was downloaded and cached, update the local file.
+		if ( $orig !== $parsed ) {
+			$fs->put_contents( $path, $parsed );
+		}
+	}
+}
+
+
+/**
+ * Replaces external URLs inside the given CSS string with local URLs.
+ *
+ * @since 1.0.2
+ *
+ * @param string $css The CSS string.
+ *
+ * @return string CSS string with URLs replaced.
+ */
+function replace_urls_in_css( $css ) {
 	/**
 	 * The $matches array has 4 elements:
 	 * [0] the full match, with url-prefix, the URI and the closing bracket
@@ -160,19 +202,10 @@ function parse_cache_contents( $type, $path ) {
 		}
 	};
 
-	// Read the file contents
-	$contents = $fs->get_contents( $path );
-
-	$contents = preg_replace_callback(
+	return preg_replace_callback(
 		'/([:\s]url\s*\()("[^"]*?"|\'[^\']*?\'|[^"\'][^)]*?)(\))/',
 		$parse_dependency,
-		$contents,
-		- 1,
-		$count
+		$css,
+		- 1
 	);
-
-	// In case an asset was downloaded and cached, update the local file.
-	if ( $count ) {
-		$fs->put_contents( $path, $contents );
-	}
 }
