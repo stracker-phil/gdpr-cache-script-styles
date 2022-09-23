@@ -5,7 +5,7 @@ Free WordPress plugin that greatly enhances privacy of your website by embedding
 ## Requirements
 
 * WP 5.8 or higher
-* PHP 7.4 or higher
+* PHP 7.2 or higher
 
 ## Installation Instructions
 
