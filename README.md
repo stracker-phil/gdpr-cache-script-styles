@@ -61,9 +61,12 @@ When you deactivate the plugin, the entire cache is purged (all files are delete
 
 ### Tested with
 
-We've tested this plugin with the following themes and plugins, and
+We've tested this plugin with the following themes and plugins:
 
-* Default WordPress **Block Editor** (embedding Google Fonts via Customizers "Additional CSS")
+* **Block Editor** (embedding Google Fonts via the Customizer's "Additional CSS")
 * [**Divi**](https://divimode.com/go/divi/) (see "Configuration for Divi" below)
 * [**Elementor**](https://wordpress.org/plugins/elementor/)
+* [Jetpack](https://wordpress.org/plugins/jetpack/) (specially with Performance options like "site accelerator")
 * [Fonts Plugin | Google Fonts Typography](https://wordpress.org/plugins/olympus-google-fonts/)
+
+Most other plugins and themes will work with this plugin as well. If you encounter any issues, please let us know, so we can improve this plugin 👍

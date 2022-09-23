@@ -2,7 +2,7 @@
 Tags: gdpr, ccpa, privacy, asset cache, script cache, style cache, embed google fonts, local google fonts
 Requires at least: 5.8
 Tested up to: 6.0.2
-Requires PHP: 7.4
+Requires PHP: 7.2
 Stable tag: 1.0.2
 License: GPL v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.txt
@@ -51,12 +51,15 @@ When you deactivate the plugin, the entire cache is purged (all files are delete
 
 ## Tested with
 
-We've tested this plugin with the following themes and plugins, and
+We've tested this plugin with the following themes and plugins:
 
-* Default WordPress **Block Editor** (embedding Google Fonts via Customizers "Additional CSS")
+* **Block Editor** (embedding Google Fonts via the Customizer's "Additional CSS")
 * [**Divi**](https://divimode.com/go/divi/) (see "Configuration for Divi" below)
 * [**Elementor**](https://wordpress.org/plugins/elementor/)
+* [Jetpack](https://wordpress.org/plugins/jetpack/) (specially with Performance options like "site accelerator")
 * [Fonts Plugin | Google Fonts Typography](https://wordpress.org/plugins/olympus-google-fonts/)
+
+Most other plugins and themes will work with this plugin as well. If you encounter any issues, please let us know, so we can improve this plugin 👍
 
 == Installation ==
 
