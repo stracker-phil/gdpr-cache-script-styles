@@ -28,15 +28,24 @@ use WP_Filesystem_Base;
  * @return bool True, if the provided URL is an external source.
  */
 function is_external_url( $url ) {
+	if ( ! defined( 'GDPR_CACHE_HOME_URL' ) ) {
+		// Get protocol-relative websites home URL.
+		$home_url = preg_replace( '/^\w+:/', '', home_url() );
+		define( 'GDPR_CACHE_HOME_URL', $home_url );
+	}
+
 	// Relative URLs are always local to the current domain.
-	if ( 0 === strpos( $url, '/' ) ) {
+	if ( '/' === $url[0] && '/' !== $url[1] ) {
 		return false;
 	}
 
-	// Get protocol-relative websites home URL.
-	$home_url = preg_replace( '/^\w+:/', '', home_url() );
+	$abs_pos = strpos( $url, GDPR_CACHE_HOME_URL );
+	if ( false !== $abs_pos && $abs_pos < 8 ) {
+		return false;
+	}
 
-	return false === strpos( $url, $home_url );
+	// URL is not relative, and does not start with home_url. Must be external.
+	return true;
 }
 
 
