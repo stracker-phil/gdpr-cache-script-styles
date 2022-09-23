@@ -48,6 +48,33 @@ function spawn_worker() {
 
 
 /**
+ * Adds a new cron task that checks for stale assets.
+ *
+ * @since 1.0.4
+ * @return void
+ */
+function enable_cron() {
+	$schedule = wp_get_scheduled_event( 'gdpr_cache_check_staleness' );
+	if ( $schedule ) {
+		return;
+	}
+
+	wp_schedule_event( time(), 'daily', 'gdpr_cache_check_staleness' );
+}
+
+
+/**
+ * Disables the stale-asset-check cron task.
+ *
+ * @since 1.0.4
+ * @return void
+ */
+function disable_cron() {
+	wp_clear_scheduled_hook( 'gdpr_cache_check_staleness' );
+}
+
+
+/**
  * Enqueues an external asset for local caching.
  *
  * @since 1.0.0

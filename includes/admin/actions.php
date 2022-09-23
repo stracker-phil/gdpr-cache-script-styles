@@ -19,6 +19,8 @@ add_action( 'gdpr_cache_do_refresh', __NAMESPACE__ . '\action_refresh_cache' );
 
 add_action( 'gdpr_cache_do_purge', __NAMESPACE__ . '\action_purge_cache' );
 
+register_activation_hook( GDPR_CACHE_PLUGIN_FILE, __NAMESPACE__ . '\action_activate' );
+
 register_deactivation_hook( GDPR_CACHE_PLUGIN_FILE, __NAMESPACE__ . '\action_deactivate' );
 
 // ----------------------------------------------------------------------------
@@ -99,6 +101,17 @@ function action_purge_cache() {
 
 
 /**
+ * Activation hook to set up the plugin.
+ *
+ * @since 1.0.4
+ * @return void
+ */
+function action_activate() {
+	enable_cron();
+}
+
+
+/**
  * Deactivation hook to clean up the cache.
  *
  * @since 1.0.0
@@ -106,4 +119,6 @@ function action_purge_cache() {
  */
 function action_deactivate() {
 	flush_cache();
+
+	disable_cron();
 }
