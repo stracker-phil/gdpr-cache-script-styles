@@ -76,6 +76,9 @@ function show_admin_notices() {
  * @return void
  */
 function render_admin_page() {
+	// Flush plugin cache when the Options Page is opened.
+	wp_cache_delete( 'data', 'gdpr-cache' );
+
 	require GDPR_CACHE_PATH . 'templates/admin-options.php';
 }
 
