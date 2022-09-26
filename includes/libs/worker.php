@@ -86,13 +86,16 @@ function enable_cron() {
 
 
 /**
- * Disables the stale-asset-check cron task.
+ * Disables all pending cron tasks.
  *
  * @since 1.0.4
  * @return void
  */
 function disable_cron() {
-	wp_clear_scheduled_hook( 'gdpr_cache_check_staleness' );
+	wp_clear_scheduled_hook( 'gdpr_cache_scan_front' ); // One-time event.
+	wp_clear_scheduled_hook( 'gdpr_cache_worker' );     // One-time event.
+
+	wp_clear_scheduled_hook( 'gdpr_cache_check_staleness' ); // Recurring.
 }
 
 
@@ -231,6 +234,15 @@ function run_background_tasks() {
 			continue;
 		}
 
+		/**
+		 * Download and cache the $item_url file locally. Scans the downloaded
+		 * file for dependencies and also caches those files. Dependencies are
+		 * additional files that are loaded from that file, such as .woff files.
+		 *
+		 * Dependencies are downloaded directly, without pushing them into the
+		 * queue! When the queue is empty, all files and their dependencies are
+		 * cached locally.
+		 */
 		cache_file_locally( $item_url );
 
 		set_worker_queue( $queue );
