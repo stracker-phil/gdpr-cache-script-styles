@@ -115,7 +115,11 @@ function action_purge_cache() {
  * @return void
  */
 function action_activate() {
+	// Set up the cron schedule.
 	enable_cron();
+
+	// Start scanning the front end.
+	spawn_scanner();
 }
 
 
@@ -126,7 +130,12 @@ function action_activate() {
  * @return void
  */
 function action_deactivate() {
+	// Disable cron schedules.
+	disable_cron();
+
+	// Remove all plugin data from DB and uploads-folder.
 	flush_cache();
+}
 
 	disable_cron();
 }

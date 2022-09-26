@@ -13,6 +13,7 @@ defined( 'ABSPATH' ) || exit;
 
 // ----------------------------------------------------------------------------
 
+add_action( 'gdpr_cache_scan_front', __NAMESPACE__ . '\run_scan_frontend' );
 add_action( 'gdpr_cache_worker', __NAMESPACE__ . '\run_background_tasks' );
 add_action( 'gdpr_cache_check_staleness', __NAMESPACE__ . '\run_staleness_checks' );
 
@@ -45,6 +46,26 @@ function spawn_worker() {
 	spawn_cron();
 
 	define( 'GDPR_CACHE__WORKER_SPAWNED', true );
+}
+
+
+/**
+ * Spawns a new cron-task that scans the front-end of the website for external
+ * scripts.
+ *
+ * Though "scan" is not correct here:
+ *
+ * The worker loads the front end with a cookieless request and a random URL.
+ * This simulates a guest visitor landing on a new page on your website.
+ * While generating the HTML response for that front-end request, the plugin's
+ * logic detects external scripts and starts to cache them if needed.
+ *
+ * @since 1.0.5
+ * @return void
+ */
+function spawn_scanner() {
+	wp_schedule_single_event( time(), 'gdpr_cache_scan_front' );
+	spawn_cron();
 }
 
 
@@ -155,6 +176,21 @@ function lock_worker() {
  */
 function unlock_worker() {
 	delete_option( GDPR_CACHE_WORKER_LOCK );
+}
+
+
+/**
+ * Runs a background task that loads the front-end of the website as a guest
+ * visitor to prime the cache.
+ *
+ * @since 1.0.5
+ * @return void
+ */
+function run_scan_frontend() {
+	$scan_url = add_query_arg( [ 'gdpr-check' => microtime() ], home_url() );
+
+	// Request the home-page with a "random" query parameter.
+	wp_remote_get( $scan_url );
 }
 
 
