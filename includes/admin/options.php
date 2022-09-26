@@ -33,7 +33,7 @@ function register_admin_menu() {
 		__NAMESPACE__ . '\render_admin_page'
 	);
 
-	add_action( "admin_head-$hook", __NAMESPACE__ . '\show_admin_notices' );
+	add_action( "admin_head-$hook", __NAMESPACE__ . '\show_action_notices' );
 
 	// Spawn background worker when admin opens the options page.
 	add_action( "admin_head-$hook", __NAMESPACE__ . '\spawn_worker' );
@@ -46,7 +46,7 @@ function register_admin_menu() {
  * @since 1.0.0
  * @return void
  */
-function show_admin_notices() {
+function show_action_notices() {
 	if ( empty( $_GET['_wpnonce'] ) || empty( $_GET['update'] ) ) {
 		return;
 	}
