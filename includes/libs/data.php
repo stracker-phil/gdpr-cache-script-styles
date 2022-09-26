@@ -36,6 +36,9 @@ function clear_data_entries() {
 	delete_option( GDPR_CACHE_OPTION );
 	delete_option( GDPR_CACHE_DEPENDENCY );
 	delete_option( GDPR_CACHE_USAGE );
+
+	// Delete user-meta items.
+	delete_metadata( 'user', 0, GDPR_CACHE_META_DISMISSED, '', true );
 }
 
 
@@ -362,4 +365,84 @@ function set_worker_queue( array $queue ) {
  */
 function has_worker_queue() {
 	return count( get_worker_queue() ) > 0;
+}
+
+
+/**
+ * Returns the User ID of the current user; used for dismissible admin notices.
+ *
+ * @since 1.0.5
+ * @return int ID of the current user, or 0
+ */
+function get_user_id() {
+	return (int) apply_filters(
+		'gdpr_cache_get_current_user',
+		get_current_user_id()
+	);
+}
+
+
+/**
+ * Retrieves details about dismissed messages from the user-meta table.
+ *
+ * @since 1.0.5
+ * @return array
+ */
+function get_dismissed() {
+	$data    = [];
+	$user_id = get_user_id();
+
+	if ( $user_id ) {
+		$data = get_user_meta( $user_id, GDPR_CACHE_META_DISMISSED, true );
+	}
+
+	if ( ! is_array( $data ) ) {
+		$data = [];
+	}
+
+	// Remove invalid items from the list.
+	$data = array_filter( $data, 'is_numeric' );
+
+	/**
+	 * Filters the list of dismissed messages after they were read from the DB.
+	 *
+	 * @sicne 1.0.5
+	 *
+	 * @param array $data    List of dismissed messages.
+	 * @param int   $user_id User whose details were fetched.
+	 */
+	return (array) apply_filters( 'gdpr_cache_get_dismissed', $data, $user_id );
+}
+
+
+/**
+ * Saves dismissed-message details in the user-meta table.
+ *
+ * @since 1.0.5
+ *
+ * @param $data
+ *
+ * @return void
+ */
+function set_dismissed( $data ) {
+	$user_id = get_user_id();
+
+	// Bail, if not logged in.
+	if ( ! $user_id ) {
+		return;
+	}
+
+	// echo '<pre>'; print_r( $data); exit;
+
+	/**
+	 * Filters the list of dismissed messages, before they're written to the DB.
+	 *
+	 * @since 1.0.5
+	 *
+	 * @param array $data    List of dismissed messages.
+	 * @param int   $user_id ID of the user who owns the data.
+	 */
+	$data = (array) apply_filters( 'gdpr_cache_set_dismissed', $data, $user_id );
+
+	update_user_meta( $user_id, GDPR_CACHE_META_DISMISSED, $data );
 }
