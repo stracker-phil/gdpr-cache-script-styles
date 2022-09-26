@@ -122,6 +122,15 @@ Also, some themes or performance plugins can embed the external resources in a w
 
 == Changelog ==
 
+= 1.0.5 =
+
+* New: Added admin notice with incompatible plugin/theme configuration is detected
+* New: Flush WP caches once all external assets were downloaded
+* Improve: Instantly start scanning for assets as soon as the plugin is activated
+* Improve: A few minor fixes and improvements
+
+> Thanks for the feedback everyone! If you have any questions of encounter problems, let me know
+
 = 1.0.4 =
 
 * New: A staleness check locates cached files that are not used for more than 30 days, and deletes them
