@@ -101,7 +101,7 @@ You can find that option in wp-admin > Divi > Theme Options > General > Performa
 
 When this option is enabled, this plugin cannot detect the Google Fonts, and your website will make some external requests to load those font-files.
 
-![Divi Settings](https://raw.githubusercontent.com/divimode/gdpr-cache-script-styles/main/docs/divi-config.png)
+Screenshot: [divi-config.png](https://raw.githubusercontent.com/divimode/gdpr-cache-script-styles/main/docs/divi-config.png)
 
 = I still see some requests to Google's Servers =
 Common reasons are:
