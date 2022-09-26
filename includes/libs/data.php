@@ -99,6 +99,68 @@ function set_cached_data( array $data ) {
 
 
 /**
+ * Updates the cache-version in the database with the actual (calculated)
+ * cache-version.
+ *
+ * @since 1.0.5
+ * @return void
+ */
+function set_data_hash() {
+	update_option( GDPR_CACHE_DATA_HASH, calc_data_hash() );
+}
+
+/**
+ * Returns the cache-version that was last stored in the DB.
+ *
+ * Every time a new file is added to, or removed from the cache, the actual
+ * cache-version changes. When the actual cache-version is different to this
+ * stored cache-version, we might need to perform some additional tasks to
+ * ensure the website uses the latest version of the cache.
+ *
+ * @since 1.0.5
+ * @return string
+ */
+function get_data_hash() {
+	return (string) get_option( GDPR_CACHE_DATA_HASH, '' );
+}
+
+
+/**
+ * Tests, if the persisted cache-version is different from the current
+ * cache-version.
+ *
+ * @since 1.0.5
+ * @return bool True when the cache-version changed. False, if all files are
+ *     same as the last persisted cache-version.
+ */
+function data_hash_changed() {
+	return calc_data_hash() !== get_data_hash();
+}
+
+
+/**
+ * Calculates the cache-version of the current DB data.
+ *
+ * @since 1.0.5
+ * @return string A hash that represents the current cache state.
+ */
+function calc_data_hash() {
+	global $gdpr_cache__data_hash;
+
+	if ( empty( $gdpr_cache__data_hash ) ) {
+		$data = get_cached_data();
+
+		$files = array_values( wp_list_pluck( $data, 'file' ) );
+		sort( $files );
+
+		$gdpr_cache__data_hash = md5( implode( ':', $files ) );
+	}
+
+	return $gdpr_cache__data_hash;
+}
+
+
+/**
  * Remembers that the given URL is still used on the front-end.
  *
  * @since 1.0.4

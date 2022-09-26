@@ -36,6 +36,15 @@ define( 'GDPR_CACHE_PLUGIN_URL', plugin_dir_url( GDPR_CACHE_PLUGIN_FILE ) );
 const GDPR_CACHE_DATA = 'gdpr_cache';
 
 /**
+ * Option name that holds a hash value of the current cache-state. This value
+ * only changes, when a local cache file was added or removed (or renamed).
+ *
+ * @since 1.0.5
+ * @var string
+ */
+const GDPR_CACHE_DATA_HASH = 'gdpr_cache_ver';
+
+/**
  * Option name that contains the task queue of invalidated or missing assets.
  *
  * @since 1.0.0

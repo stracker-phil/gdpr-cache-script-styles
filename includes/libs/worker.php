@@ -247,6 +247,22 @@ function run_background_tasks() {
 	 * @since 1.0.0
 	 */
 	do_action( 'gdpr_cache_after_worker' );
+
+	/**
+	 * When the entire queue was processed, we compare the cache version:
+	 *
+	 * The version changes, when a new file was added to the cache, or an
+	 * existing file was removed from it. In case the version changed, we flush
+	 * the WP caches, to ensure that the cached files are actually used in the
+	 * font-end.
+	 *
+	 * @since 1.0.5
+	 */
+	if ( data_hash_changed() ) {
+		set_data_hash();
+
+		flush_wp_caches();
+	}
 }
 
 
