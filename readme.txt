@@ -3,7 +3,7 @@ Tags: gdpr, ccpa, privacy, asset cache, script cache, style cache, embed google 
 Requires at least: 5.8
 Tested up to: 6.0.2
 Requires PHP: 7.2
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 License: GPL v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.txt
 
@@ -125,7 +125,7 @@ Also, some themes or performance plugins can embed the external resources in a w
 = 1.0.5 =
 
 * New: Added admin notice with incompatible plugin/theme configuration is detected
-* New: Flush WP caches once all external assets were downloaded
+* New: Flush WP caches, when new external assets were downloaded
 * Improve: Instantly start scanning for assets as soon as the plugin is activated
 * Improve: A few minor fixes and improvements
 
