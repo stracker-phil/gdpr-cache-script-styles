@@ -28,7 +28,7 @@ function register_admin_menu() {
 	$hook = add_management_page(
 		__( 'GDPR Cache Options', 'gdpr-cache' ),
 		__( 'GDPR Cache', 'gdpr-cache' ),
-		'manage_options',
+		GDPR_CACHE_CAPABILITY,
 		'gdpr-cache',
 		__NAMESPACE__ . '\render_admin_page'
 	);

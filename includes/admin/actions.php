@@ -67,6 +67,10 @@ function process_actions() {
  * @return void
  */
 function action_refresh_cache() {
+	if ( ! current_user_can( GDPR_CACHE_CAPABILITY ) ) {
+		return;
+	}
+
 	flush_cache( true );
 
 	$redirect_to = add_query_arg( [
@@ -87,6 +91,10 @@ function action_refresh_cache() {
  * @return void
  */
 function action_purge_cache() {
+	if ( ! current_user_can( GDPR_CACHE_CAPABILITY ) ) {
+		return;
+	}
+
 	flush_cache();
 
 	$redirect_to = add_query_arg( [
