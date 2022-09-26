@@ -33,7 +33,7 @@ define( 'GDPR_CACHE_PLUGIN_URL', plugin_dir_url( GDPR_CACHE_PLUGIN_FILE ) );
  * @since 1.0.0
  * @var string
  */
-const GDPR_CACHE_OPTION = 'gdpr_cache';
+const GDPR_CACHE_DATA = 'gdpr_cache';
 
 /**
  * Option name that contains the task queue of invalidated or missing assets.

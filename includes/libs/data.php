@@ -33,7 +33,7 @@ function clear_data_entries() {
 	// Delete all plugin details from the DB.
 	delete_option( GDPR_CACHE_QUEUE );
 	delete_option( GDPR_CACHE_WORKER_LOCK );
-	delete_option( GDPR_CACHE_OPTION );
+	delete_option( GDPR_CACHE_DATA );
 	delete_option( GDPR_CACHE_DEPENDENCY );
 	delete_option( GDPR_CACHE_USAGE );
 
@@ -52,7 +52,7 @@ function get_cached_data() {
 	$data = wp_cache_get( 'data', 'gdpr-cache' );
 
 	if ( ! is_array( $data ) ) {
-		$data = get_option( GDPR_CACHE_OPTION );
+		$data = get_option( GDPR_CACHE_DATA );
 
 		if ( ! is_array( $data ) ) {
 			$data = [];
@@ -94,7 +94,7 @@ function set_cached_data( array $data ) {
 	wp_cache_set( 'data', $data, 'gdpr-cache' );
 
 	// Persist data to the DB.
-	update_option( GDPR_CACHE_OPTION, $data );
+	update_option( GDPR_CACHE_DATA, $data );
 }
 
 
