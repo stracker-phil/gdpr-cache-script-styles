@@ -50,13 +50,19 @@ function process_actions() {
 		return;
 	}
 
+	$data = wp_unslash( $_REQUEST );
+	unset( $data['_wpnonce'] );
+	unset( $data['action'] );
+
 	/**
 	 * Fire a custom action that contains the GDPR cache action, for example
 	 * the action 'gdpr-cache-flush' fires the action 'gdpr_cache_do_flush'.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @param array $data The request data.
 	 */
-	do_action( "gdpr_cache_do_$gdpr_action" );
+	do_action( "gdpr_cache_do_$gdpr_action", $data );
 }
 
 

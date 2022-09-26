@@ -14,6 +14,7 @@ require_once __DIR__ . '/constants.php';
 
 // Admin page integration.
 require_once GDPR_CACHE_PATH . 'includes/admin/actions.php';
+require_once GDPR_CACHE_PATH . 'includes/admin/notice.php';
 require_once GDPR_CACHE_PATH . 'includes/admin/options.php';
 
 // Asset scanner.

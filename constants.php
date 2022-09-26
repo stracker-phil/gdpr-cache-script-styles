@@ -79,6 +79,14 @@ const GDPR_CACHE_USAGE = 'gdpr_used';
  */
 const GDPR_CACHE_WORKER_LOCK = 'gdpr_lock';
 
+/**
+ * User-meta key that holds details about dismissed admin notices.
+ *
+ * @sinec 1.0.5
+ * @var string
+ */
+const GDPR_CACHE_META_DISMISSED = '_gdpr_dismissed';
+
 if ( ! defined( 'GDPR_CACHE_DEFAULT_UA' ) ) {
 	/**
 	 * Defines the default user-agent that is sent to remote servers when
@@ -124,4 +132,15 @@ if ( ! defined( 'GDPR_CACHE_CAPABILITY' ) ) {
 	 * @var string
 	 */
 	define( 'GDPR_CACHE_CAPABILITY', 'manage_options' );
+}
+
+
+if ( ! defined( 'GDPR_CACHE_DISMISSAL_LIFESPAN' ) ) {
+	/**
+	 * For how long an admin notices stays dismissed. Timespan in seconds.
+	 *
+	 * @since 1.0.5
+	 * @var int
+	 */
+	define( 'GDPR_CACHE_DISMISSAL_LIFESPAN', DAY_IN_SECONDS );
 }
