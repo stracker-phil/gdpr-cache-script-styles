@@ -61,6 +61,7 @@ We've tested this plugin with the following themes and plugins:
 * [**Elementor**](https://wordpress.org/plugins/elementor/)
 * [Jetpack](https://wordpress.org/plugins/jetpack/) (specially with Performance options like "site accelerator")
 * [Fonts Plugin | Google Fonts Typography](https://wordpress.org/plugins/olympus-google-fonts/)
+* Works on **multisite** networks
 
 Most other plugins and themes will work with this plugin as well. If you encounter any issues, please let us know, so we can improve this plugin 👍
 
@@ -112,6 +113,15 @@ Common reasons are:
 
 Also, some themes or performance plugins can embed the external resources in a way that our plugin cannot detect. If this is the case for you, please let us know. We might be able to adjust this plugin, or provide you with instructions on how to configure the plugin/theme to be compatible with *GDPR Cache Scripts & Styles*.
 
+= Does it work on multisite networks? =
+
+Yes. When used in a multisite network, each site will start to create its own GDPR cache
+
+* Each site in the network will start to download external files automatically.
+* The local cache is stored in the respective sites “uploads” folder (there’s no overlapping between sites).
+* Each site only maintains assets that are used by that site.
+
+There is NO network-wide overview, or "Purge All Sites" function in the plugin.
 
 == Screenshots ==
 
