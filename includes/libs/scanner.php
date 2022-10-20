@@ -17,6 +17,7 @@ defined( 'ABSPATH' ) || exit;
 add_filter( 'script_loader_src', __NAMESPACE__ . '\scan_external_assets' );
 add_filter( 'style_loader_src', __NAMESPACE__ . '\scan_external_assets' );
 add_filter( 'wp_get_custom_css', __NAMESPACE__ . '\parse_custom_css' );
+add_filter( 'gdpr_cache_swap_asset', __NAMESPACE__ . '\apply_blacklisted_assets', 10, 2 );
 
 // ----------------------------------------------------------------------------
 
@@ -70,7 +71,7 @@ function scan_external_assets( $source ) {
 function parse_custom_css( $css ) {
 	$parsed = replace_urls_in_css( $css );
 
-	if ( $parsed['changed']) {
+	if ( $parsed['changed'] ) {
 		set_dependencies( 'wp_custom_css', $parsed['urls'] );
 	}
 
@@ -236,4 +237,69 @@ function replace_urls_in_css( $css ) {
 		'urls'    => $urls,
 		'content' => $css,
 	];
+}
+
+
+/**
+ * Returns an array with blacklisted host names.
+ *
+ * When a host is blacklisted, this plugin does not attempt to download or cache
+ * any asset from it.
+ *
+ * @since 1.0.6
+ * @return array List of host names that should not be cached locally.
+ */
+function get_blacklisted_hosts() {
+	static $blacklist = null;
+
+	if ( is_null( $blacklist ) ) {
+		$blacklist = [
+			'www.paypal.com',
+			'paypal.com',
+			'js.stripe.com',
+			'stripe.com',
+		];
+
+		/**
+		 * Filters the list of blacklisted hosts. This plugin does not download
+		 * or cache any files from a blacklisted host.
+		 *
+		 * @since 1.0.6
+		 *
+		 * @param array $blacklist List of hosts (domains) that should not be
+		 *                         served from the local site.
+		 */
+		$blacklist = apply_filters( 'gdpr_cache_blacklisted_asset_hosts', $blacklist );
+
+		// Remove all trailing/leading slashes from the blacklisted hosts.
+		$blacklist = array_map( function ( $host ) {
+			return trim( $host, '/' );
+		}, $blacklist );
+
+		$blacklist = array_filter( $blacklist );
+	}
+
+	return $blacklist;
+}
+
+/**
+ * Applies a blacklist of assets that should not be cached locally.
+ *
+ * @since 1.0.6
+ *
+ * @param bool   $should_swap Whether to download and cache the asset locally.
+ * @param string $source      The assets external URL.
+ *
+ * @return bool Whether to download and cache the asset locally.
+ */
+function apply_blacklisted_assets( $should_swap, $source ) {
+	$url = wp_parse_url( $source );
+
+	if ( $url ) {
+		if ( in_array( $url['host'], get_blacklisted_hosts() ) ) {
+			$should_swap = false;
+		}
+	}
+
+	return $should_swap;
 }
