@@ -19,6 +19,10 @@ add_filter( 'style_loader_src', __NAMESPACE__ . '\scan_external_assets' );
 add_filter( 'wp_get_custom_css', __NAMESPACE__ . '\parse_custom_css' );
 add_filter( 'gdpr_cache_swap_asset', __NAMESPACE__ . '\apply_blacklisted_assets', 10, 2 );
 
+// Divi (since 4.18.1)
+add_filter( 'et_builder_google_fonts_get_url', __NAMESPACE__ . '\scan_external_assets' );
+add_filter( 'et_builder_google_fonts_fetch_content', __NAMESPACE__ . '\parse_custom_css' );
+
 // ----------------------------------------------------------------------------
 
 

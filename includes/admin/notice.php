@@ -31,12 +31,19 @@ function get_all_notices() {
 	/**
 	 * Divi Theme.
 	 * Check for "Improve Google Fonts Loading" option, which was added in
-	 * version 4.1.0
+	 * version 4.1.0 - since version 4.18.1 (approx) Divi has filters that we
+	 * can use to cache Google Fonts locally.
 	 */
 	if ( class_exists( 'ET_Builder_Google_Fonts_Feature' ) ) {
 		global $shortname;
 
-		if ( et_is_builder_plugin_active() ) {
+		$font_man = \ET_Builder_Google_Fonts_Feature::instance();
+
+		if ( method_exists( $font_man, 'get_google_fonts_url' ) ) {
+			// This Divi version has relevant filters that we can use to make
+			// Google Fonts GDPR-compliant. We do not need to show a notice.
+			$option_state = '-';
+		} elseif ( et_is_builder_plugin_active() ) {
 			$options      = get_option( 'et_pb_builder_options', [] );
 			$option_state = isset( $options['performance_main_google_fonts_inline'] ) ? $options['performance_main_google_fonts_inline'] : 'on';
 
