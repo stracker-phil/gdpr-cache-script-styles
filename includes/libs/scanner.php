@@ -262,6 +262,11 @@ function get_blacklisted_hosts() {
 			'paypal.com',
 			'js.stripe.com',
 			'stripe.com',
+
+            /**
+             * @since 2023-01-24 - Google Maps stopped working when script was not loaded from google servers
+             */
+            'maps.googleapis.com',
 		];
 
 		/**

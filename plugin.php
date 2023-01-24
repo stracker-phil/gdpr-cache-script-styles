@@ -12,7 +12,7 @@
  * Plugin Name: GDPR Cache Scripts & Styles
  * Plugin URI:  https://github.com/divimode/gdpr-cache-script-styles
  * Description: Caches external scripts and styles and serves them from your local website to make it more compliant with GDPR regulations
- * Version:     1.0.6
+ * Version:     1.0.7
  * Author:      Divimode
  * Author URI:  https://divimode.com/
  * Text Domain: gdpr-cache
@@ -40,14 +40,14 @@
 namespace GdprCache;
 
 // Exit if accessed directly.
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 /**
  * The current plugin version.
  *
  * @var string
  */
-const GDPR_CACHE_VERSION = '1.0.6';
+const GDPR_CACHE_VERSION = '1.0.7';
 
 /**
  * Absolute path and file name of the main plugin file.
@@ -56,4 +56,4 @@ const GDPR_CACHE_VERSION = '1.0.6';
  */
 const GDPR_CACHE_PLUGIN_FILE = __FILE__;
 
-require_once __DIR__ . '/start.php';
+require_once __DIR__.'/start.php';
